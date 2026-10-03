@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JJWren/appsec-ascent/schemas/sealed-bundle.v1.schema.json",
+  "title": "Sealed Bundle",
+  "description": "Encrypted, signed public form of a Sealed item. The header holds only allowlisted, non-spoiler metadata (BND-02); coverage reads headers without decrypting.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["header", "ciphertext", "tag", "signature"],
+  "properties": {
+    "header": { "$ref": "#/$defs/header" },
+    "ciphertext": { "type": "string", "contentEncoding": "base64" },
+    "tag": { "type": "string", "contentEncoding": "base64" },
+    "signature": { "type": "string", "contentEncoding": "base64" }
+  },
+  "$defs": {
+    "header": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formatVersion", "itemId", "itemType", "tier", "contentType", "kdfInfo", "nonce", "createdUtc"],
+      "properties": {
+        "formatVersion": { "const": 1 },
+        "itemId": { "type": "string" },
+        "itemType": { "enum": ["question", "lab-module", "lab-tests", "lab-fix", "lab-plant", "reference", "release", "drill-answer", "deep-dive-solution"] },
+        "tier": { "enum": ["start", "earned", "submitted", "practice", "simulation", "release"] },
+        "objectiveId": { "type": "string", "pattern": "^([1-8]\\.\\d{1,2}|ORI-\\d+|CAP-\\d+)$" },
+        "examDomain": { "enum": ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "ORI", "CAP"] },
+        "pool": { "enum": ["practice", "diagnostic", "simulation"] },
+        "aiTopic": { "type": "string" },
+        "contentType": { "type": "string" },
+        "kdfInfo": { "type": "string" },
+        "nonce": { "type": "string", "contentEncoding": "base64" },
+        "createdUtc": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+name: Content Bug
+description: Report something wrong, unclear or badly cited in the Curriculum.
+title: "[Content Bug] <item ID>: <short summary>"
+labels: ["content-bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping keep AppSec Ascent accurate.
+        **Never include exam-recalled content** (questions, answers or close paraphrases from a real exam). Reports containing it are removed.
+        Please avoid posting Lab solutions or Flags. Describe the problem by item ID instead.
+  - type: input
+    id: item-id
+    attributes:
+      label: Item ID
+      description: For example q-4.4, lab-d5-01, dlv-d3-01 or qb-5.1-007 (shown by the Engine and at the top of every file).
+    validations:
+      required: true
+  - type: input
+    id: citation-id
+    attributes:
+      label: Citation ID (if applicable)
+      description: The citation you believe is wrong or missing, for example c2.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong?
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Supporting source
+      description: A free, authoritative source (standard, official documentation or primary guidance) that supports the correction.
+  - type: checkboxes
+    id: attestation
+    attributes:
+      label: Confirmation
+      options:
+        - label: This report contains no exam-recalled content.
+          required: true

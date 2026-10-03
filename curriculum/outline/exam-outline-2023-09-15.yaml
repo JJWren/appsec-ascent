@@ -1,0 +1,155 @@
+# Exam outline (effective 2023-09-15): domains, weights, objectives and AI-guidance topics.
+# Objective titles and AI-topic summaries are short paraphrases; consult the sources below for the authoritative text.
+# CSSLP is a registered certification mark of ISC2, Inc. This project is not affiliated with or endorsed by ISC2.
+version: "2023-09-15"
+effectiveDate: "2023-09-15"
+source: https://www.isc2.org/certifications/csslp/csslp-certification-exam-outline
+aiGuidanceSource: https://edge.sitecorecloud.io/internationf173-xmc4e73-prodbc0f-9660/media/Project/ISC2/Main/Media/exam-guidance/ISC2-Exam-Guidance.pdf
+
+domains:
+  - id: D1
+    name: Secure Software Concepts
+    weight: 12
+    objectives:
+      - { id: "1.1", title: Core security concepts }
+      - { id: "1.2", title: Security design principles }
+    aiGuidanceTopics:
+      - { key: genai-boundaries, summary: "How generative AI and LLM components change traditional software security boundaries." }
+      - { key: data-poisoning, summary: "Corrupting training or retraining data to manipulate model behavior." }
+      - { key: model-inversion, summary: "Reconstructing sensitive training data from a model's outputs." }
+      - { key: memorization-leakage, summary: "Models leaking proprietary code or personal data memorized during training." }
+      - { key: probabilistic-design, summary: "Applying secure design principles to non-deterministic, probabilistic outputs." }
+
+  - id: D2
+    name: Secure Software Lifecycle Management
+    weight: 11
+    objectives:
+      - { id: "2.1", title: Security in the development methodology }
+      - { id: "2.2", title: Security standards and frameworks }
+      - { id: "2.3", title: Security strategy and roadmap }
+      - { id: "2.4", title: Security documentation }
+      - { id: "2.5", title: Security metrics }
+      - { id: "2.6", title: Decommissioning applications }
+      - { id: "2.7", title: Security reporting }
+      - { id: "2.8", title: Integrated risk management }
+      - { id: "2.9", title: Secure operations practices }
+    aiGuidanceTopics:
+      - { key: mlsecops, summary: "Extending DevSecOps practices to machine-learning lifecycles (MLSecOps)." }
+      - { key: continuous-retraining, summary: "Managing continuous model retraining loops within agile delivery." }
+      - { key: ai-coding-assistants, summary: "Governing AI coding assistants so they neither introduce flaws nor bypass security gates." }
+      - { key: llm-security-standards, summary: "Adopting LLM-specific security standards such as the OWASP Top 10 for LLM applications." }
+      - { key: ai-build-break-criteria, summary: "Pipeline build-break criteria when model bias or hallucination rates exceed thresholds." }
+      - { key: pqc-roadmap, summary: "Planning post-quantum cryptography in the security roadmap." }
+
+  - id: D3
+    name: Secure Software Requirements
+    weight: 13
+    objectives:
+      - { id: "3.1", title: Software security requirements }
+      - { id: "3.2", title: Compliance requirements }
+      - { id: "3.3", title: Data classification requirements }
+      - { id: "3.4", title: Privacy requirements }
+      - { id: "3.5", title: Data access provisioning }
+      - { id: "3.6", title: Misuse and abuse cases }
+      - { id: "3.7", title: Requirements traceability matrix }
+      - { id: "3.8", title: Third-party security requirements }
+    aiGuidanceTopics:
+      - { key: third-party-ai-boundaries, summary: "Defining boundaries for integrating third-party LLMs and AI services." }
+      - { key: autonomous-action-limits, summary: "Functional requirements that prevent unauthorized autonomous actions by AI." }
+      - { key: ai-quality-thresholds, summary: "Non-functional requirements for acceptable hallucination rates and bias thresholds." }
+      - { key: ai-abuse-cases, summary: "Abuse cases targeting chatbots and inference engines, including jailbreak attempts." }
+      - { key: ai-function-creep, summary: "Scoping AI use cases clearly to prevent function creep." }
+
+  - id: D4
+    name: Secure Software Architecture and Design
+    weight: 15
+    objectives:
+      - { id: "4.1", title: Security architecture }
+      - { id: "4.2", title: Secure interface design }
+      - { id: "4.3", title: Evaluating reusable technologies }
+      - { id: "4.4", title: Threat modeling }
+      - { id: "4.5", title: Architectural risk assessment and design review }
+      - { id: "4.6", title: Modeling non-functional security properties }
+      - { id: "4.7", title: Secure operational architecture }
+    aiGuidanceTopics:
+      - { key: inference-decoupling, summary: "Decoupling core application logic from unpredictable inference engines." }
+      - { key: vector-store-zero-trust, summary: "Zero Trust boundaries around vector databases and AI processing clusters." }
+      - { key: ai-threat-modeling, summary: "Using AI-assisted threat modeling to map evolving attack surfaces." }
+      - { key: ml-architecture-frameworks, summary: "Adapting architecture frameworks such as SABSA to ML systems and their supply chain." }
+      - { key: distributed-ml-design, summary: "Securing federated-learning nodes and high-volume inference queuing." }
+
+  - id: D5
+    name: Secure Software Implementation
+    weight: 14
+    objectives:
+      - { id: "5.1", title: Secure coding practices }
+      - { id: "5.2", title: Analyzing code for security risks }
+      - { id: "5.3", title: Implementing security controls }
+      - { id: "5.4", title: Addressing identified security risks }
+      - { id: "5.5", title: Evaluating and integrating components }
+      - { id: "5.6", title: Security in the build process }
+    aiGuidanceTopics:
+      - { key: secure-ai-assisted-coding, summary: "Using AI-assisted coding securely during implementation." }
+      - { key: ai-code-provenance, summary: "Tracking the provenance of AI-generated code." }
+      - { key: prompt-injection-standards, summary: "Secure coding standards that mitigate prompt injection." }
+      - { key: llm-input-sanitization, summary: "Sanitizing and semantically validating every input sent to an LLM." }
+      - { key: agent-runtime-limits, summary: "Enforcing declarative limits on what AI agents may do at runtime." }
+
+  - id: D6
+    name: Secure Software Testing
+    weight: 14
+    objectives:
+      - { id: "6.1", title: Security testing strategy }
+      - { id: "6.2", title: Security test cases }
+      - { id: "6.3", title: Verifying documentation }
+      - { id: "6.4", title: Finding undocumented functionality }
+      - { id: "6.5", title: Analyzing security test results }
+      - { id: "6.6", title: Classifying and tracking security errors }
+      - { id: "6.7", title: Securing test data }
+      - { id: "6.8", title: Verification and validation testing }
+    aiGuidanceTopics:
+      - { key: probabilistic-testing, summary: "Testing model outputs for bias, drift, toxicity and adversarial evasion." }
+      - { key: ai-generated-tests, summary: "Using AI to generate edge-case security test scripts." }
+      - { key: agent-boundary-testing, summary: "Validating that autonomous agents cannot act outside their intended scope." }
+      - { key: token-limit-stress, summary: "Stress-testing models against token limits and degraded behavior." }
+      - { key: ai-rmf-evaluation, summary: "Evaluating AI components against the NIST AI Risk Management Framework." }
+
+  - id: D7
+    name: Secure Software Deployment, Operations, Maintenance
+    weight: 11
+    objectives:
+      - { id: "7.1", title: Operational risk analysis }
+      - { id: "7.2", title: Secure configuration and version control }
+      - { id: "7.3", title: Secure release }
+      - { id: "7.4", title: Managing security data }
+      - { id: "7.5", title: Secure installation }
+      - { id: "7.6", title: Obtaining approval to operate }
+      - { id: "7.7", title: Continuous monitoring }
+      - { id: "7.8", title: Incident response }
+      - { id: "7.9", title: Patch management }
+      - { id: "7.10", title: Vulnerability management }
+      - { id: "7.11", title: Runtime protection }
+      - { id: "7.12", title: Continuity of operations }
+      - { id: "7.13", title: Service-level objectives and agreements }
+    aiGuidanceTopics:
+      - { key: nondeterministic-operations, summary: "Operational risks of running non-deterministic models inside deterministic software." }
+      - { key: aiops, summary: "Using AIOps for monitoring and self-healing infrastructure." }
+      - { key: drift-and-attack-monitoring, summary: "Detecting algorithmic drift and adversarial attacks in production." }
+      - { key: model-weight-staging, summary: "Sandboxed staging to test updated model weights before deployment." }
+      - { key: ai-legal-compliance, summary: "Managing legal and copyright risk of AI-generated code and EU AI Act obligations." }
+
+  - id: D8
+    name: Secure Software Supply Chain
+    weight: 10
+    objectives:
+      - { id: "8.1", title: Supply chain risk management }
+      - { id: "8.2", title: Analyzing third-party software }
+      - { id: "8.3", title: Pedigree and provenance }
+      - { id: "8.4", title: Supplier security requirements }
+      - { id: "8.5", title: Contractual requirements }
+    aiGuidanceTopics:
+      - { key: foundation-model-supply-chain, summary: "Supply-chain risk from external foundation models and public datasets." }
+      - { key: ai-bom, summary: "AI bills of materials that track model weights, training datasets and ML libraries." }
+      - { key: open-model-selection, summary: "Security criteria for selecting open-source AI models." }
+      - { key: model-backdoors, summary: "Preventing malicious backdoors and quantifying upstream model-poisoning risk." }
+      - { key: pretrained-bias, summary: "Assessing inherent bias in pre-trained open-source models." }

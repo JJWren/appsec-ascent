@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JJWren/appsec-ascent/schemas/lab-brief.v1.schema.json",
+  "title": "Lab Brief front matter",
+  "description": "Front matter of a public, spoiler-free Lab Brief. There is deliberately no field for the vulnerable location, the fix or the Flag.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["labId", "objectiveId", "stages", "estimatedCost"],
+  "properties": {
+    "labId": { "type": "string" },
+    "objectiveId": { "type": "string", "pattern": "^([1-8]\\.\\d{1,2}|ORI-\\d+|CAP-\\d+)$" },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "enum": ["local", "cloud"] }
+    },
+    "estimatedCost": { "type": "string", "minLength": 2 }
+  }
+}

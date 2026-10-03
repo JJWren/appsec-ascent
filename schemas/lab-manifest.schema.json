@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JJWren/appsec-ascent/schemas/lab-manifest.v1.schema.json",
+  "title": "Lab manifest",
+  "description": "Public manifest of a Lab. Never describes the vulnerability; Sealed parts are referenced by bundle item ID.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "objectiveId", "outlineVersion", "release", "brief", "module", "stages", "sealed", "xp", "windowsOnly", "bonus"],
+  "properties": {
+    "id": { "type": "string" },
+    "objectiveId": { "type": "string", "pattern": "^([1-8]\\.\\d{1,2}|ORI-\\d+|CAP-\\d+)$" },
+    "outlineVersion": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "release": { "type": "integer", "minimum": 0, "maximum": 9 },
+    "brief": { "const": "BRIEF.md" },
+    "module": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sealedRef"],
+      "properties": { "sealedRef": { "type": "string" } }
+    },
+    "stages": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["local"],
+      "properties": {
+        "local": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["services"],
+          "properties": { "services": { "type": "array", "minItems": 1, "items": { "type": "string" } } }
+        },
+        "cloud": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["bicep", "estimateUsd", "freeTier", "paidSideQuest", "teardownWindowHours"],
+          "properties": {
+            "bicep": { "type": "string", "pattern": "\\.bicep$" },
+            "estimateUsd": { "type": "number", "minimum": 0 },
+            "freeTier": { "type": "boolean" },
+            "paidSideQuest": { "type": "boolean" },
+            "teardownWindowHours": { "type": "integer", "minimum": 1, "maximum": 72 }
+          }
+        }
+      }
+    },
+    "sealed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tests", "fix", "plant"],
+      "properties": {
+        "tests": { "type": "string" },
+        "fix": { "type": "string" },
+        "plant": { "type": "string" }
+      }
+    },
+    "xp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["red", "blue", "explain"],
+      "properties": {
+        "red": { "type": "integer", "minimum": 0 },
+        "blue": { "type": "integer", "minimum": 0 },
+        "explain": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "windowsOnly": { "type": "boolean" },
+    "bonus": { "type": "boolean" }
+  }
+}

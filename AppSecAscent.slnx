@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/engine/" />
+  <Folder Name="/engine/src/">
+    <Project Path="engine/src/Ascent.Cli/Ascent.Cli.csproj" />
+    <Project Path="engine/src/Ascent.Content/Ascent.Content.csproj" />
+  </Folder>
+  <Folder Name="/engine/tests/">
+    <Project Path="engine/tests/Ascent.Content.Tests/Ascent.Content.Tests.csproj" />
+  </Folder>
+</Solution>

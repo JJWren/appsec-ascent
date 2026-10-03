@@ -1,0 +1,15 @@
+# Build state of Season 1. When a pack is marked complete, its "at pack exit" lint rules become errors.
+season: 1
+outlineVersion: "2023-09-15"
+status: in-progress
+packs:
+  orientation: draft
+  d1: draft
+  d2: draft
+  d3: draft
+  d4: draft
+  d5: draft
+  d6: draft
+  d7: draft
+  d8: draft
+  capstone: draft

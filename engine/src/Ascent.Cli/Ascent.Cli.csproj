@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>ascent</AssemblyName>
+    <RootNamespace>Ascent.Cli</RootNamespace>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>ascent</ToolCommandName>
+    <PackageId>AppSecAscent.Cli</PackageId>
+    <Description>AppSec Ascent engine: an unofficial, gamified study companion.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console.Cli" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ascent.Content\Ascent.Content.csproj" />
+  </ItemGroup>
+
+</Project>

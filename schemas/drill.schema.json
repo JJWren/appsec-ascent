@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JJWren/appsec-ascent/schemas/drill.v1.schema.json",
+  "title": "Drill",
+  "description": "A short, focused exercise. The answer is Sealed and referenced by bundle item ID.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "objectiveId", "prompt", "estimatedMinutes", "answerRef"],
+  "properties": {
+    "id": { "type": "string" },
+    "objectiveId": { "type": "string", "pattern": "^([1-8]\\.\\d{1,2}|ORI-\\d+|CAP-\\d+)$" },
+    "prompt": { "type": "string", "minLength": 10 },
+    "estimatedMinutes": { "type": "integer", "minimum": 1, "maximum": 30 },
+    "answerRef": { "type": "string" }
+  }
+}

@@ -1,0 +1,61 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,yml,yaml,props,slnx,csproj,xml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{cmd,bat}]
+end_of_line = crlf
+
+[*.cs]
+# Style
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_prefer_braces = when_multiline:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+dotnet_sort_system_directives_first = true
+dotnet_style_qualification_for_field = false:suggestion
+
+# Analyzer suppressions (MAINT-U1-02: each one is justified).
+# CA1303: the CLI is English-only; there are no resource files to localize literals into.
+dotnet_diagnostic.CA1303.severity = none
+# CA2007: console app and libraries without a SynchronizationContext; ConfigureAwait adds noise only.
+dotnet_diagnostic.CA2007.severity = none
+# CA1062: nullable reference types already enforce non-null arguments at compile time.
+dotnet_diagnostic.CA1062.severity = none
+# CA1848: no ILogger usage in U1.
+dotnet_diagnostic.CA1848.severity = none
+# CA1515: library types are public deliberately; they are consumed by the CLI and tests.
+dotnet_diagnostic.CA1515.severity = none
+# CA1002/CA2227: domain records expose simple lists deserialized from YAML.
+dotnet_diagnostic.CA1002.severity = none
+dotnet_diagnostic.CA2227.severity = none
+# CA1819: small immutable records expose arrays for value semantics in tests.
+dotnet_diagnostic.CA1819.severity = none
+# CA1056/CA1054/CA1055: URLs stay as strings; they come from YAML and are only displayed.
+dotnet_diagnostic.CA1056.severity = none
+dotnet_diagnostic.CA1054.severity = none
+dotnet_diagnostic.CA1055.severity = none
+
+[engine/tests/**.cs]
+# Tests: descriptive underscore names and test-specific patterns.
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1515.severity = none
+dotnet_diagnostic.CA1861.severity = none
+dotnet_diagnostic.CA1852.severity = none
+dotnet_diagnostic.CA1305.severity = none
+dotnet_diagnostic.CA1307.severity = none
+dotnet_diagnostic.CA1310.severity = none
+dotnet_diagnostic.CA1822.severity = none
+dotnet_diagnostic.CA5394.severity = none
