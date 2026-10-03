@@ -76,12 +76,24 @@ _Avoid_: paper exercise, document
 The single fictional telehealth product, deliberately vulnerable, that the Learner hardens across every Domain.
 _Avoid_: sample app, demo app, vulnerable app
 
+**Thistledown Telehealth**:
+The fictional telehealth company that owns the Throughline System and employs the Learner as its new AppSec hire.
+_Avoid_: the company, the client
+
+**Release**:
+A canonical snapshot of the Throughline System at the start of a Domain. It includes the reference fixes for all earlier Domains.
+_Avoid_: version, baseline, snapshot
+
+**Lab Module**:
+The isolated part of the Throughline System that carries one Lab's vulnerability. It can be code, configuration, infrastructure-as-code or a pipeline file, and it stays Sealed until the Lab starts.
+_Avoid_: plugin, feature flag
+
 **Red → Blue → Explain**:
 The three-step Lab loop. Red: exploit the vulnerability and capture the Flag. Blue: fix it until the security tests pass. Explain: write the Teach-back.
 _Avoid_: attack/defend
 
 **Flag**:
-A secret string captured by exploiting a Lab's vulnerability. It proves the Red step is done.
+A secret string, generated at random each time a Lab starts and planted in the running system. Capturing it by exploiting the Lab's vulnerability proves the Red step is done.
 _Avoid_: token, answer, key
 
 **Teach-back**:
@@ -129,5 +141,13 @@ An error a Learner finds in the Curriculum, filed as an issue and rewarded with 
 _Avoid_: typo, issue
 
 **Sealed**:
-Describes build artifacts the builder deliberately doesn't review, to avoid spoilers: vulnerable-code specifics, fixes, Flags, reference answers, and the Question Bank. CI proves each one works, and the Learner verifies it the first time they meet it while studying.
+Describes build artifacts the builder deliberately doesn't review, to avoid spoilers: Lab Modules, Lab tests, fixes, reference answers, the Question Bank, the Simulation pool and later Releases. CI proves each one works, and the Learner verifies it the first time they meet it while studying.
 _Avoid_: hidden, secret
+
+**Sealed Bundle**:
+The encrypted, signed form in which the public repository ships a Sealed item.
+_Avoid_: blob, archive
+
+**Proof Pipeline**:
+The CI workflow in the private sealed repository that proves every Sealed Lab works. It reports only pass or fail.
+_Avoid_: test pipeline
