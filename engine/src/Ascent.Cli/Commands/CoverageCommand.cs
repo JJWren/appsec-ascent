@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Globalization;
+using Ascent.Cli.Hosting;
 using Ascent.Content.Coverage;
-using Ascent.Content.Loading;
 using Ascent.Content.Reporting;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -23,13 +23,13 @@ public sealed class CoverageSettings : RepoSettings
 }
 
 /// <summary><c>ascent coverage</c>: counts per Domain and Objective against the outline. Never prints content.</summary>
-public sealed class CoverageCommand : Command<CoverageSettings>
+public sealed class CoverageCommand(EngineHost host) : Command<CoverageSettings>
 {
     /// <inheritdoc />
     public override int Execute(CommandContext context, CoverageSettings settings, CancellationToken cancellationToken)
     {
-        var console = Output.Create(settings.Plain);
-        var report = CoverageCalculator.Calculate(ContentLoader.Load(Output.ResolveRoot(settings.Root)), settings.Outline);
+        var console = host.OutputConsole();
+        var report = CoverageCalculator.Calculate(host.Content, settings.Outline);
         if (report is null)
         {
             console.MarkupLine("[red]No valid outline was found.[/] Run 'ascent lint' for details.");
@@ -39,11 +39,11 @@ public sealed class CoverageCommand : Command<CoverageSettings>
         var gaps = settings.Gate is null ? [] : CoverageCalculator.GateGaps(report, settings.Gate);
         if (settings.Json)
         {
-            Console.Out.WriteLine(JsonOutput.Serialize(new { report, gate = settings.Gate, gaps }));
+            host.Out.WriteLine(JsonOutput.Serialize(new { report, gate = settings.Gate, gaps }));
         }
         else
         {
-            Render(console, report, settings.Plain);
+            Render(console, report, host.Renderer.IsPlain);
             foreach (var gap in gaps)
             {
                 console.MarkupLine("[red]gate:[/] " + Markup.Escape(gap));
@@ -55,7 +55,7 @@ public sealed class CoverageCommand : Command<CoverageSettings>
 
     private static void Render(IAnsiConsole console, CoverageReport report, bool plain)
     {
-        var table = new Table().Title("Coverage against outline " + report.OutlineVersion);
+        var table = new Table().Title(Markup.Escape("Coverage against outline " + report.OutlineVersion));
         table.AddColumns("Domain", "Weight", "Objectives complete", "AI topics", "Diagnostic", "Simulation");
         foreach (var domain in report.Domains)
         {

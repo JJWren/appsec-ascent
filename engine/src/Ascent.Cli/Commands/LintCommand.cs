@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Ascent.Cli.Hosting;
 using Ascent.Content.Loading;
 using Ascent.Content.Model;
 using Ascent.Content.Reporting;
@@ -17,22 +18,21 @@ public sealed class LintSettings : RepoSettings
 }
 
 /// <summary><c>ascent lint</c>: checks content against every framework rule.</summary>
-public sealed class LintCommand : Command<LintSettings>
+public sealed class LintCommand(EngineHost host) : Command<LintSettings>
 {
     /// <inheritdoc />
     public override int Execute(CommandContext context, LintSettings settings, CancellationToken cancellationToken)
     {
-        var root = Output.ResolveRoot(settings.Root);
         var sealedSources = settings.SealedSources is null ? null : Path.GetFullPath(settings.SealedSources);
-        var findings = new RuleEngine().Run(ContentLoader.Load(root, sealedSources));
+        var findings = new RuleEngine().Run(ContentLoader.Load(host.Paths.RepoRoot, sealedSources));
 
         if (settings.Json)
         {
-            Console.Out.WriteLine(JsonOutput.Serialize(new FindingsReport(findings)));
+            host.Out.WriteLine(JsonOutput.Serialize(new FindingsReport(findings)));
         }
         else
         {
-            Output.PrintFindings(Output.Create(settings.Plain), findings);
+            Output.PrintFindings(host.OutputConsole(), findings);
         }
 
         return findings.Any(f => f.Severity == Severity.Error) ? 1 : 0;

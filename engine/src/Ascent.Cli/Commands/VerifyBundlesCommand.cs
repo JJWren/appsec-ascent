@@ -1,3 +1,4 @@
+using Ascent.Cli.Hosting;
 using Ascent.Content.Loading;
 using Ascent.Content.Model;
 using Ascent.Content.Reporting;
@@ -11,12 +12,12 @@ namespace Ascent.Cli.Commands;
 /// <c>ascent verify-bundles</c>: checks Sealed Bundle metadata. Signature verification (BND-01) is added by the
 /// Engine's sealing module; until then no Sealed Bundles are published.
 /// </summary>
-public sealed class VerifyBundlesCommand : Command<RepoSettings>
+public sealed class VerifyBundlesCommand(EngineHost host) : Command<RepoSettings>
 {
     /// <inheritdoc />
     public override int Execute(CommandContext context, RepoSettings settings, CancellationToken cancellationToken)
     {
-        var index = ContentLoader.Load(Output.ResolveRoot(settings.Root));
+        var index = host.Content;
         var bundlePaths = index.OfKind(DocumentKind.Bundle).Select(b => b.RelativePath).ToHashSet(StringComparer.Ordinal);
         var findings = new RuleEngine(BundleRules.All).Run(index)
             .Where(f => bundlePaths.Contains(f.Path))
@@ -24,11 +25,11 @@ public sealed class VerifyBundlesCommand : Command<RepoSettings>
 
         if (settings.Json)
         {
-            Console.Out.WriteLine(JsonOutput.Serialize(new FindingsReport(findings)));
+            host.Out.WriteLine(JsonOutput.Serialize(new FindingsReport(findings)));
         }
         else
         {
-            var console = Output.Create(settings.Plain);
+            var console = host.OutputConsole();
             console.MarkupLine(FormattableString.Invariant($"Checked {bundlePaths.Count} Sealed Bundle(s)."));
             Output.PrintFindings(console, findings);
         }

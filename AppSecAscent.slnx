@@ -3,8 +3,12 @@
   <Folder Name="/engine/src/">
     <Project Path="engine/src/Ascent.Cli/Ascent.Cli.csproj" />
     <Project Path="engine/src/Ascent.Content/Ascent.Content.csproj" />
+    <Project Path="engine/src/Ascent.Core/Ascent.Core.csproj" />
+    <Project Path="engine/src/Ascent.Storage/Ascent.Storage.csproj" />
   </Folder>
   <Folder Name="/engine/tests/">
+    <Project Path="engine/tests/Ascent.Cli.Tests/Ascent.Cli.Tests.csproj" />
     <Project Path="engine/tests/Ascent.Content.Tests/Ascent.Content.Tests.csproj" />
+    <Project Path="engine/tests/Ascent.Engine.Tests/Ascent.Engine.Tests.csproj" />
   </Folder>
 </Solution>

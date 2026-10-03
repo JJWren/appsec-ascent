@@ -4,34 +4,9 @@ using Spectre.Console;
 
 namespace Ascent.Cli.Commands;
 
-/// <summary>Console creation and shared rendering helpers.</summary>
+/// <summary>Shared rendering for findings.</summary>
 internal static class Output
 {
-    /// <summary>Creates a console; plain mode disables ANSI and color entirely.</summary>
-    public static IAnsiConsole Create(bool plain) =>
-        plain
-            ? AnsiConsole.Create(new AnsiConsoleSettings { Ansi = AnsiSupport.No, ColorSystem = ColorSystemSupport.NoColors })
-            : AnsiConsole.Console;
-
-    /// <summary>Resolves the repository root.</summary>
-    public static string ResolveRoot(string? explicitRoot)
-    {
-        if (!string.IsNullOrWhiteSpace(explicitRoot))
-        {
-            return Path.GetFullPath(explicitRoot);
-        }
-
-        for (var directory = new DirectoryInfo(Directory.GetCurrentDirectory()); directory is not null; directory = directory.Parent)
-        {
-            if (File.Exists(Path.Combine(directory.FullName, "AppSecAscent.slnx")))
-            {
-                return directory.FullName;
-            }
-        }
-
-        return Directory.GetCurrentDirectory();
-    }
-
     /// <summary>Prints findings as <c>path:line: SEVERITY RULE: message</c> lines plus a summary.</summary>
     public static void PrintFindings(IAnsiConsole console, IReadOnlyList<Finding> findings)
     {

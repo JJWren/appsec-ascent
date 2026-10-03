@@ -1,0 +1,13 @@
+<Project>
+  <!--
+    One Microsoft.Testing.Platform configuration for every test project. A config file switches off coverlet.MTP's
+    dynamic exclusions (which would otherwise skip the `ascent` CLI assembly), so coverage includes exactly the
+    Engine's assemblies (TEST-U2-01, P24).
+  -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)testconfig.json"
+          Link="testconfig.json"
+          TargetPath="$(AssemblyName).testconfig.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

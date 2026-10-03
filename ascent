@@ -1,5 +1,41 @@
 #!/usr/bin/env bash
 # Runs the AppSec Ascent Engine from source (until the first NuGet release makes `dotnet tool restore` available).
+# It builds once into .ascent/bin and rebuilds only when the engine's sources change (PERF-U2-01).
+# `./ascent --rebuild` forces a build and then exits.
 set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec dotnet run --project "$here/engine/src/Ascent.Cli/Ascent.Cli.csproj" --verbosity quiet -- "$@"
+bin="$here/.ascent/bin"
+dll="$bin/ascent.dll"
+stamp_file="$bin/.stamp"
+
+rebuild_only=false
+if [ "${1:-}" = "--rebuild" ]; then
+  rebuild_only=true
+fi
+
+needs_build=$rebuild_only
+stamp=""
+if git -C "$here" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if [ -n "$(git -C "$here" status --porcelain -- engine)" ]; then
+    needs_build=true # local engine changes: always rebuild
+  else
+    stamp="$(git -C "$here" rev-parse HEAD:engine)"
+  fi
+fi
+
+if [ ! -f "$dll" ]; then
+  needs_build=true
+elif [ -n "$stamp" ] && [ "$(cat "$stamp_file" 2>/dev/null || true)" != "$stamp" ]; then
+  needs_build=true
+fi
+
+if [ "$needs_build" = true ]; then
+  dotnet build "$here/engine/src/Ascent.Cli/Ascent.Cli.csproj" --configuration Release --output "$bin" --nologo --verbosity quiet -consoleLoggerParameters:NoSummary >&2
+  printf '%s' "$stamp" > "$stamp_file"
+fi
+
+if [ "$rebuild_only" = true ]; then
+  exit 0
+fi
+
+exec dotnet "$dll" "$@"
