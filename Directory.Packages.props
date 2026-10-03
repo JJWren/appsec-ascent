@@ -1,0 +1,17 @@
+<Project>
+  <!-- Central Package Management. Every dependency must use a permissive license (LIC-U1-01). -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Runtime -->
+    <PackageVersion Include="Spectre.Console.Cli" Version="0.57.2" />            <!-- MIT -->
+    <PackageVersion Include="YamlDotNet" Version="18.1.0" />                     <!-- MIT -->
+    <PackageVersion Include="Markdig" Version="1.4.0" />                         <!-- BSD-2-Clause -->
+    <PackageVersion Include="LateApexEarlySpeed.Json.Schema" Version="4.2.0" />  <!-- BSD-3-Clause -->
+    <!-- Tests (Microsoft.Testing.Platform runner, opted in via global.json) -->
+    <PackageVersion Include="xunit.v3" Version="4.0.1" />                        <!-- Apache-2.0 -->
+    <PackageVersion Include="Shouldly" Version="4.3.0" />                        <!-- BSD-3-Clause -->
+  </ItemGroup>
+</Project>

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JJWren/appsec-ascent/schemas/season.v1.schema.json",
+  "title": "Season state",
+  "description": "Build state of a Season. A pack marked complete turns its 'at pack exit' lint rules into errors.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["season", "outlineVersion", "status", "packs"],
+  "properties": {
+    "season": { "type": "integer", "minimum": 1 },
+    "outlineVersion": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "status": { "enum": ["in-progress", "complete"] },
+    "packs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["orientation", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "capstone"],
+      "properties": {
+        "orientation": { "$ref": "#/$defs/packState" },
+        "d1": { "$ref": "#/$defs/packState" },
+        "d2": { "$ref": "#/$defs/packState" },
+        "d3": { "$ref": "#/$defs/packState" },
+        "d4": { "$ref": "#/$defs/packState" },
+        "d5": { "$ref": "#/$defs/packState" },
+        "d6": { "$ref": "#/$defs/packState" },
+        "d7": { "$ref": "#/$defs/packState" },
+        "d8": { "$ref": "#/$defs/packState" },
+        "capstone": { "$ref": "#/$defs/packState" }
+      }
+    }
+  },
+  "$defs": {
+    "packState": { "enum": ["draft", "complete"] }
+  }
+}

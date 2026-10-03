@@ -7,11 +7,22 @@
 AppSec Ascent teaches the secure software lifecycle by having you harden one deliberately vulnerable telehealth system, built with .NET and Azure, across all eight exam domains. A gamified command-line tool, `ascent`, runs your daily review, checks your labs, and tracks your progress up a ladder of AppSec career ranks.
 
 ## Status
-Planning is complete:
+Planning is complete. The repository foundation and curriculum framework are now being built:
 - [`CONTEXT.md`](CONTEXT.md) defines the project's shared vocabulary.
 - [`docs/adr/`](docs/adr/) records the key design decisions.
+- [`curriculum/outline/`](curriculum/outline/) maps the exam outline's 8 Domains and 58 Objectives, with ISC2's AI-guidance topics.
+- [`schemas/`](schemas/) defines the content formats.
 
-The build phase starts next.
+### For maintainers
+The Engine runs from source until its first package release. It needs the .NET 10 SDK.
+
+```bash
+./ascent lint                 # check content against the framework's rules
+./ascent coverage             # coverage against the exam outline (counts only)
+./ascent exceptions check     # fail on expired security exceptions
+```
+
+On Windows, use `ascent.cmd` in place of `./ascent`. To report a problem with the content, see [CONTRIBUTING.md](CONTRIBUTING.md). To report a security issue, see [SECURITY.md](SECURITY.md).
 
 ## How this was built
 Content and code are drafted with AI assistance (Claude), following an AI-driven development lifecycle. Every claim in the curriculum cites a source and is checked by a human learner. The process records are kept in a private repository.

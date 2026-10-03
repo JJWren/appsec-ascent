@@ -1,0 +1,13 @@
+# Security exception register (SEC-U1-03).
+# Scanner findings of Medium, High or Critical severity fail CI. An accepted risk must be recorded here with a
+# justification, an owner and an expiry no more than 90 days out. Expired entries fail CI.
+#
+# Example entry:
+#   - id: EXC-001
+#     scanner: trivy            # nuget | trivy | dependency-review | codeql
+#     finding: CVE-2026-00000
+#     package: example-package
+#     justification: Not reachable from the Engine; upstream fix pending in the next release.
+#     owner: maintainer
+#     expires: 2026-12-31
+exceptions: []

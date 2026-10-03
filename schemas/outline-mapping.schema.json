@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JJWren/appsec-ascent/schemas/outline-mapping.v1.schema.json",
+  "title": "Outline mapping",
+  "description": "Maps Objective IDs from one outline version to the next so content and progress carry over.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["from", "to", "entries"],
+  "properties": {
+    "from": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "to": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "kind"],
+        "properties": {
+          "from": { "type": ["string", "null"], "pattern": "^[1-8]\\.\\d{1,2}$" },
+          "to": { "type": "array", "items": { "type": "string", "pattern": "^[1-8]\\.\\d{1,2}$" } },
+          "kind": { "enum": ["same", "split", "merged", "removed", "new"] }
+        }
+      }
+    }
+  }
+}

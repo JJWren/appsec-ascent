@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Ascent.Content</RootNamespace>
+    <Description>Curriculum framework for AppSec Ascent: outline, schemas, lint rules and coverage.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" />
+    <PackageReference Include="Markdig" />
+    <PackageReference Include="LateApexEarlySpeed.Json.Schema" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ascent.Content.Tests" />
+  </ItemGroup>
+
+</Project>

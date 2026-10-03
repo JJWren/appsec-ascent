@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JJWren/appsec-ascent/schemas/exceptions.v1.schema.json",
+  "title": "Security exception register",
+  "description": "Documented, time-limited acceptances of scanner findings (SEC-U1-03). Expired entries fail CI.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["exceptions"],
+  "properties": {
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "scanner", "finding", "justification", "owner", "expires"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^EXC-\\d{3}$" },
+          "scanner": { "enum": ["nuget", "trivy", "dependency-review", "codeql"] },
+          "finding": { "type": "string", "minLength": 3 },
+          "package": { "type": "string" },
+          "justification": { "type": "string", "minLength": 20 },
+          "owner": { "type": "string", "minLength": 2 },
+          "expires": { "type": "string", "format": "date" }
+        }
+      }
+    }
+  }
+}

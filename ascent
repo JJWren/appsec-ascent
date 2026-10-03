@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Runs the AppSec Ascent Engine from source (until the first NuGet release makes `dotnet tool restore` available).
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec dotnet run --project "$here/engine/src/Ascent.Cli/Ascent.Cli.csproj" --verbosity quiet -- "$@"

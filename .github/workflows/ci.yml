@@ -1,0 +1,93 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "true"
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  ASCENT: engine/src/Ascent.Cli/bin/Release/net10.0/ascent.dll
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+      - name: Restore (locked; NuGet audit fails on Medium and above)
+        run: dotnet restore AppSecAscent.slnx --locked-mode
+      - name: Build (all analyzers, warnings as errors)
+        run: dotnet build AppSecAscent.slnx --no-restore --configuration Release
+      - name: Test
+        run: dotnet test --solution AppSecAscent.slnx --no-build --configuration Release
+      - name: Format
+        if: runner.os == 'Linux'
+        run: dotnet format AppSecAscent.slnx --verify-no-changes --no-restore
+
+  content-checks:
+    name: content-checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+      - name: Build the Engine
+        run: dotnet build engine/src/Ascent.Cli/Ascent.Cli.csproj --configuration Release
+      - name: Lint content
+        run: dotnet "$ASCENT" lint --plain
+      - name: Verify Sealed Bundle metadata
+        run: dotnet "$ASCENT" verify-bundles --plain
+      - name: Exception register (expired entries fail)
+        run: dotnet "$ASCENT" exceptions check --plain
+      - name: NuGet suppressions match the register
+        run: |
+          dotnet "$ASCENT" exceptions emit --nuget security/nuget-audit-suppressions.props --plain
+          git diff --exit-code -- security/nuget-audit-suppressions.props
+      - name: Coverage (counts only)
+        run: |
+          dotnet "$ASCENT" coverage --plain | tee coverage.txt
+          { echo '## Coverage (counts only)'; echo '```'; cat coverage.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+  trivy:
+    name: trivy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+      - name: Generate the Trivy ignore file from the exception register
+        run: |
+          dotnet build engine/src/Ascent.Cli/Ascent.Cli.csproj --configuration Release
+          dotnet "$ASCENT" exceptions emit --trivy .trivyignore --plain
+      - name: Trivy filesystem scan (Medium and above fail)
+        # Trivy v0.75.0, pinned by digest (a release published after the March 2026 CVE-2026-33634 remediation).
+        run: >-
+          docker run --rm -v "$PWD:/src" -w /src
+          ghcr.io/aquasecurity/trivy@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa
+          fs --scanners vuln,secret,misconfig --severity MEDIUM,HIGH,CRITICAL --exit-code 1 --ignorefile .trivyignore .
