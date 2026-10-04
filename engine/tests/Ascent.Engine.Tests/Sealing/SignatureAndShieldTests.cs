@@ -8,6 +8,7 @@ namespace Ascent.Engine.Tests.Sealing;
 public sealed class SignatureAndShieldTests
 {
     [Fact]
+    [Trait("Rule", "SEAL-01")]
     public void Signatures_verify_only_for_the_signed_data_and_the_trusted_key()
     {
         using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);

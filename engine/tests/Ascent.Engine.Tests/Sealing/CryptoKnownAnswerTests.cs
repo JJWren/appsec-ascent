@@ -48,6 +48,7 @@ public sealed class CryptoKnownAnswerTests
     }
 
     [Fact]
+    [Trait("Rule", "SEAL-02")]
     public void The_key_hierarchy_uses_versioned_labels()
     {
         var shield = Enumerable.Range(0, 32).Select(i => (byte)i).ToArray();
@@ -61,6 +62,7 @@ public sealed class CryptoKnownAnswerTests
     }
 
     [Fact]
+    [Trait("Rule", "SEAL-02")]
     public void Derived_keys_are_pinned_so_label_changes_cannot_slip_in()
     {
         // Golden values: changing a label or the salt would make every published bundle unreadable.
@@ -79,6 +81,7 @@ public sealed class CryptoKnownAnswerTests
         Should.Throw<ArgumentException>(() => new KeyHierarchy(new byte[16]));
 
     [Fact]
+    [Trait("Rule", "SEAL-02")]
     public void Aes_gcm_round_trips_and_detects_every_kind_of_tampering()
     {
         var key = Enumerable.Range(1, 32).Select(i => (byte)i).ToArray();

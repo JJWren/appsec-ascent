@@ -124,24 +124,23 @@ public sealed class ProgressDatabaseTests
     }
 
     [Fact]
-    public void Units_of_work_commit_or_roll_back()
+    public void Transactions_commit_or_roll_back_and_nest()
     {
         using var temp = new TempDirectory();
         using var database = ProgressDatabase.Open(new EnginePaths(temp.Path), clock, files);
 
-        using (var work = database.Begin())
+        database.Run(() => InsertProfile(database, "kept", "yes"));
+        Should.Throw<InvalidOperationException>(() => database.Run(() =>
         {
-            InsertProfile(work, "kept", "yes");
-            work.Commit();
-        }
+            InsertProfile(database, "dropped", "no");
+            database.Run(() => InsertProfile(database, "nested", "joins the outer transaction"));
+            throw new InvalidOperationException("boom");
+        }));
 
-        using (var work = database.Begin())
-        {
-            InsertProfile(work, "dropped", "no");
-        }
-
+        database.Run(() => 42).ShouldBe(42);
         ProfileValue(database.Connection, "kept").ShouldBe("yes");
         ProfileValue(database.Connection, "dropped").ShouldBeNull();
+        ProfileValue(database.Connection, "nested").ShouldBeNull();
     }
 
     [Fact]
@@ -167,9 +166,7 @@ public sealed class ProgressDatabaseTests
         using (var database = ProgressDatabase.Open(paths, clock, files))
         {
             ProfilePeek.PlainMode(paths).ShouldBeNull();
-            using var work = database.Begin();
-            InsertProfile(work, ProfilePeek.PlainModeKey, "true");
-            work.Commit();
+            InsertProfile(database, ProfilePeek.PlainModeKey, "true");
         }
 
         ProfilePeek.PlainMode(paths).ShouldBe(true);
@@ -240,9 +237,9 @@ public sealed class ProgressDatabaseTests
         return Convert.ToString(command.ExecuteScalar(), CultureInfo.InvariantCulture)!;
     }
 
-    private static void InsertProfile(UnitOfWork work, string key, string value)
+    private static void InsertProfile(ProgressDatabase database, string key, string value)
     {
-        using var command = work.Command();
+        using var command = database.Command();
         command.CommandText = "INSERT INTO profile (key, value) VALUES ($key, $value);";
         command.With("$key", key).With("$value", value).ExecuteNonQuery();
     }

@@ -16,6 +16,7 @@ public sealed class SealedStoreTests
     private readonly FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 3, 12, 0, 0, TimeSpan.Zero));
 
     [Fact]
+    [Trait("Rule", "SEAL-05")]
     public void A_released_item_opens_and_the_release_is_recorded_once()
     {
         using var bundles = new TestBundles();
@@ -55,10 +56,12 @@ public sealed class SealedStoreTests
     public void A_missing_item_is_unavailable() => AssertUnavailable(SealedFailure.Missing, (bundles, _) => "nothing-here");
 
     [Fact]
+    [Trait("Rule", "SEAL-01")]
     public void An_unsigned_item_is_unavailable() => AssertUnavailable(SealedFailure.NoSignature, (bundles, plaintext) =>
         Id(bundles.Write("qb-1.1-001", "question", SealTier.Practice, plaintext, pool: "practice", sign: false)));
 
     [Fact]
+    [Trait("Rule", "SEAL-01")]
     public void An_item_signed_by_another_key_is_unavailable() => AssertUnavailable(SealedFailure.BadSignature, (bundles, plaintext) =>
     {
         using var impostor = new TestBundles();
@@ -71,6 +74,7 @@ public sealed class SealedStoreTests
     });
 
     [Fact]
+    [Trait("Rule", "SEAL-01")]
     public void A_header_edited_after_signing_is_unavailable() => AssertUnavailable(SealedFailure.BadSignature, (bundles, plaintext) =>
     {
         var path = bundles.Write("qb-1.1-001", "question", SealTier.Practice, plaintext, pool: "practice");
@@ -83,6 +87,7 @@ public sealed class SealedStoreTests
         Id(bundles.Write("qb-9.9-001", "question", SealTier.Simulation, plaintext, pool: "simulation")));
 
     [Fact]
+    [Trait("Rule", "SEAL-02")]
     public void A_wrong_key_derivation_label_is_unavailable() => AssertUnavailable(SealedFailure.WrongKdfInfo, (bundles, plaintext) =>
     {
         var path = bundles.Write("qb-1.1-001", "question", SealTier.Practice, plaintext, pool: "practice", sign: false);
@@ -94,6 +99,7 @@ public sealed class SealedStoreTests
     });
 
     [Fact]
+    [Trait("Rule", "SEAL-02")]
     public void Ciphertext_altered_before_signing_is_unavailable() => AssertUnavailable(SealedFailure.TagMismatch, (bundles, plaintext) =>
         Id(bundles.Write("qb-1.1-001", "question", SealTier.Practice, plaintext, pool: "practice", tamper: bundle =>
         {
@@ -115,6 +121,7 @@ public sealed class SealedStoreTests
     });
 
     [Fact]
+    [Trait("Rule", "SEAL-01")]
     public void Unavailable_items_have_one_message_and_a_next_step()
     {
         var error = new SealedItemUnavailableException("qb-1.1-001\u001b[31m", SealedFailure.BadSignature);

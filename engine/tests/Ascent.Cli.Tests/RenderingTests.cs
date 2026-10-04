@@ -115,11 +115,7 @@ public sealed class RenderingTests
         using (var host = engine.CreateHost(output))
         {
             host.Renderer.IsPlain.ShouldBeFalse();
-            using var work = host.Database.Begin();
-            using var command = work.Command();
-            command.CommandText = "INSERT INTO profile (key, value) VALUES ('plainMode', 'true');";
-            command.ExecuteNonQuery();
-            work.Commit();
+            new ProfileStore(host.Database).Write(ProfilePeek.PlainModeKey, "true");
         }
 
         using var later = new StringWriter();

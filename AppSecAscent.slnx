@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/engine/" />
   <Folder Name="/engine/src/">
+    <Project Path="engine/src/Ascent.Assessment/Ascent.Assessment.csproj" />
     <Project Path="engine/src/Ascent.Cli/Ascent.Cli.csproj" />
     <Project Path="engine/src/Ascent.Content/Ascent.Content.csproj" />
     <Project Path="engine/src/Ascent.Core/Ascent.Core.csproj" />

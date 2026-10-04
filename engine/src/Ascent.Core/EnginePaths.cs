@@ -25,6 +25,9 @@ public sealed class EnginePaths
     /// <summary>Pre-migration database backups (P16).</summary>
     public string Backups => Path.Join(StateDirectory, "backups");
 
+    /// <summary>Private progress exports (BAK-01).</summary>
+    public string Exports => Path.Join(StateDirectory, "exports");
+
     /// <summary>The allowlisted local log (P30).</summary>
     public string Logs => Path.Join(StateDirectory, "logs");
 

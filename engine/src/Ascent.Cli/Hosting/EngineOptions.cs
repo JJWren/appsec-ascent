@@ -41,4 +41,10 @@ public sealed record EngineOptions
 
     /// <summary>Whether output is redirected; null means ask the console.</summary>
     public bool? OutputRedirected { get; init; }
+
+    /// <summary>
+    /// The trusted maintainer public key (PEM). Null means the key embedded in the Engine. Only tests set this, through
+    /// the composition root; there is deliberately no configuration file or command-line option for it (P8).
+    /// </summary>
+    public string? TrustedKeyPem { get; init; }
 }

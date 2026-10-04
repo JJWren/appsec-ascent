@@ -20,7 +20,7 @@ public sealed class SealingStoresTests : IDisposable
     [Trait("Rule", "FLAG-02")]
     public void Lab_flags_store_salts_hashes_and_wrong_attempts()
     {
-        var flags = new LabFlagStore(database.Connection);
+        var flags = new LabFlagStore(database);
         flags.Find("lab-d5-01").ShouldBeNull();
 
         flags.SetFlag("lab-d5-01", [1, 2], [3, 4]);
@@ -41,7 +41,7 @@ public sealed class SealingStoresTests : IDisposable
     [Trait("Rule", "SEAL-05")]
     public void Key_releases_are_recorded_once()
     {
-        var log = new KeyReleaseStore(database.Connection);
+        var log = new KeyReleaseStore(database);
         log.IsReleased("qb-1.1-001", SealTier.Practice).ShouldBeFalse();
 
         log.Record("qb-1.1-001", SealTier.Practice, ReleaseReason.Served, DateTimeOffset.UnixEpoch);
@@ -57,7 +57,7 @@ public sealed class SealingStoresTests : IDisposable
     [Trait("Rule", "SEAL-03")]
     public void Release_facts_come_from_progress()
     {
-        var facts = new ReleaseFactsStore(database.Connection);
+        var facts = new ProgressFactsStore(database);
         facts.RulesAccepted.ShouldBeFalse();
         facts.LabStage("lab-d5-01").ShouldBe(LabStage.NotStarted);
         facts.WorkSubmitted("dlv-d3-01").ShouldBeFalse();

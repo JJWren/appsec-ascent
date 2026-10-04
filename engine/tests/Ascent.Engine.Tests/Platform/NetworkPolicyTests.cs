@@ -21,6 +21,7 @@ public sealed class NetworkPolicyTests
     [InlineData("http://localhost:9999/v1/chat/completions", NetworkPurpose.AiReviewer, "not the configured")]
     [InlineData("https://api.github.com/x", NetworkPurpose.AiReviewer, "not the configured")]
     [InlineData("https://api.github.com/x", (NetworkPurpose)42, "unknown")]
+    [Trait("Rule", "PRV-01")]
     public void Other_requests_are_refused(string url, NetworkPurpose purpose, string reason) =>
         new NetworkPolicy(new Uri("http://localhost:11434/v1")).Check(new Uri(url), purpose)!.ShouldContain(reason);
 
@@ -43,6 +44,7 @@ public sealed class NetworkPolicyTests
         new NetworkPolicy().Check(new Uri("/relative", UriKind.Relative), NetworkPurpose.ContentBugSync)!.ShouldContain("not absolute");
 
     [Fact]
+    [Trait("Rule", "PRV-01")]
     public async Task The_client_enforces_the_policy_before_any_request_leaves()
     {
         using var recorder = new RecordingHandler();

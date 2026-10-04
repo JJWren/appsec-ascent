@@ -18,6 +18,12 @@
     <ProjectReference Include="..\..\src\Ascent.Core\Ascent.Core.csproj" />
     <ProjectReference Include="..\..\src\Ascent.Storage\Ascent.Storage.csproj" />
     <ProjectReference Include="..\..\src\Ascent.Sealing\Ascent.Sealing.csproj" />
+    <ProjectReference Include="..\..\src\Ascent.Assessment\Ascent.Assessment.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Test fixtures shared by the Engine and CLI tests (D6). -->
+    <Compile Include="..\Shared\**\*.cs" LinkBase="Shared" />
   </ItemGroup>
 
   <ItemGroup>

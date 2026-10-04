@@ -11,6 +11,7 @@
     <PackageVersion Include="Markdig" Version="1.4.0" />                         <!-- BSD-2-Clause -->
     <PackageVersion Include="LateApexEarlySpeed.Json.Schema" Version="4.2.0" />  <!-- BSD-3-Clause -->
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.12" />         <!-- MIT; native SQLitePCLRaw bundle: Apache-2.0 -->
+    <PackageVersion Include="Fsrs.Sharp" Version="2.0.0" />                      <!-- MIT; FSRS-6 spaced repetition (SU-04) -->
     <!-- Maintainer tool only (ascent-maint, Windows): DPAPI for the signing key (ND-U2-1 = B). -->
     <PackageVersion Include="System.Security.Cryptography.ProtectedData" Version="10.0.12" />  <!-- MIT -->
     <!-- Tests (Microsoft.Testing.Platform runner, opted in via global.json) -->

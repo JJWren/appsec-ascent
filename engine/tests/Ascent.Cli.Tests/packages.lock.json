@@ -364,11 +364,19 @@
       "AppSecAscent.Cli": {
         "type": "Project",
         "dependencies": {
+          "Ascent.Assessment": "[1.0.0, )",
           "Ascent.Content": "[1.0.0, )",
           "Ascent.Core": "[1.0.0, )",
           "Ascent.Sealing": "[1.0.0, )",
           "Ascent.Storage": "[1.0.0, )",
           "Spectre.Console.Cli": "[0.57.2, )"
+        }
+      },
+      "ascent.assessment": {
+        "type": "Project",
+        "dependencies": {
+          "Ascent.Sealing": "[1.0.0, )",
+          "Fsrs.Sharp": "[2.0.0, )"
         }
       },
       "ascent.content": {
@@ -397,6 +405,12 @@
           "Ascent.Core": "[1.0.0, )",
           "Microsoft.Data.Sqlite": "[10.0.12, )"
         }
+      },
+      "Fsrs.Sharp": {
+        "type": "CentralTransitive",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "FrJF8Lx8uXRJSptnik1fPYDUUX4SbaF0RDcKCb2JSTIj6hn7Aj5Es5D3EH4sbCpMJJuw3FSoup9hnP59VFGgfg=="
       },
       "LateApexEarlySpeed.Json.Schema": {
         "type": "CentralTransitive",

@@ -8,16 +8,56 @@ namespace Ascent.Storage;
 /// <summary>
 /// The Learner's progress store, <c>.ascent/progress.db</c> (P14–P16): WAL journaling, full sync, foreign keys,
 /// a 5-second busy timeout, owner-only files, guarded migrations, and a refusal to write to a damaged database.
+/// <see cref="Run{T}"/> starts each transaction with <c>BEGIN IMMEDIATE</c>, so the write lock is taken up front.
 /// </summary>
-public sealed class ProgressDatabase : IDisposable
+public sealed class ProgressDatabase : IDisposable, Ascent.Core.Progress.IProgressTransactions
 {
     /// <summary>How long a command waits for another process's write lock, in seconds.</summary>
     public const int BusyTimeoutSeconds = 5;
+
+    private SqliteTransaction? current;
 
     private ProgressDatabase(SqliteConnection connection, MigrationReport migration)
     {
         Connection = connection;
         Migration = migration;
+    }
+
+    /// <summary>Creates a command that joins the current transaction, if any. Callers set a constant <c>CommandText</c>.</summary>
+    public SqliteCommand Command() => Statements.Command(Connection, current);
+
+    /// <inheritdoc />
+    public void Run(Action action)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+        Run(() =>
+        {
+            action();
+            return true;
+        });
+    }
+
+    /// <inheritdoc />
+    public T Run<T>(Func<T> action)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+        if (current is not null)
+        {
+            return action();
+        }
+
+        using var transaction = Connection.BeginTransaction(deferred: false);
+        current = transaction;
+        try
+        {
+            var result = action();
+            transaction.Commit();
+            return result;
+        }
+        finally
+        {
+            current = null;
+        }
     }
 
     /// <summary>The open connection.</summary>
@@ -30,11 +70,35 @@ public sealed class ProgressDatabase : IDisposable
     public static ProgressDatabase Open(EnginePaths paths, TimeProvider time, IOwnerOnlyFiles files) =>
         Open(paths, time, files, Migrator.All);
 
-    /// <summary>Begins a unit of work that takes the write lock up front (<c>BEGIN IMMEDIATE</c>).</summary>
-    public UnitOfWork Begin() => new(Connection);
+    /// <summary>
+    /// Moves a damaged database and its WAL files into the backups folder as <c>damaged-progress-*.db</c>, so a fresh
+    /// one can be created for <c>progress import</c> (REL-U2-03). Backup pruning never touches these files.
+    /// </summary>
+    public static string MoveAside(EnginePaths paths, TimeProvider time, IOwnerOnlyFiles files)
+    {
+        ArgumentNullException.ThrowIfNull(paths);
+        ArgumentNullException.ThrowIfNull(time);
+        ArgumentNullException.ThrowIfNull(files);
+        files.CreateDirectory(paths.Backups);
+        var stamp = time.GetUtcNow().UtcDateTime.ToString("yyyyMMdd'T'HHmmss'Z'", System.Globalization.CultureInfo.InvariantCulture);
+        var target = Path.Join(paths.Backups, "damaged-progress-" + stamp + ".db");
+        foreach (var suffix in new[] { string.Empty, "-wal", "-shm" })
+        {
+            if (File.Exists(paths.Database + suffix))
+            {
+                File.Move(paths.Database + suffix, target + suffix, overwrite: false);
+            }
+        }
+
+        return target;
+    }
 
     /// <inheritdoc />
-    public void Dispose() => Connection.Dispose();
+    public void Dispose()
+    {
+        current?.Dispose();
+        Connection.Dispose();
+    }
 
     internal static ProgressDatabase Open(EnginePaths paths, TimeProvider time, IOwnerOnlyFiles files, IReadOnlyList<Migration> migrations)
     {

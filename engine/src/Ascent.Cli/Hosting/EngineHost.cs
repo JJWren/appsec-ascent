@@ -30,6 +30,7 @@ public sealed class EngineHost : IDisposable
     private IRenderer? renderer;
     private IAnsiConsole? console;
     private IPrompter? prompter;
+    private EngineServices? services;
     private string commandName = "(parse)";
     private long started = Stopwatch.GetTimestamp();
 
@@ -72,6 +73,9 @@ public sealed class EngineHost : IDisposable
 
     /// <summary>Phase timings for <c>--timings</c>.</summary>
     public Timings Timings { get; } = new();
+
+    /// <summary>Services for Learner commands, created on first use.</summary>
+    public EngineServices Services => services ??= new EngineServices(this, options);
 
     /// <summary>Where command output goes (machine-readable JSON included).</summary>
     public TextWriter Out => options.Output ?? System.Console.Out;
@@ -120,6 +124,8 @@ public sealed class EngineHost : IDisposable
         renderer = null;
         console = null;
         prompter = null;
+        services?.Dispose();
+        services = null;
         started = Stopwatch.GetTimestamp();
         Timings.Restart();
     }
@@ -158,7 +164,11 @@ public sealed class EngineHost : IDisposable
     }
 
     /// <inheritdoc />
-    public void Dispose() => database?.Dispose();
+    public void Dispose()
+    {
+        services?.Dispose();
+        database?.Dispose();
+    }
 
     private ProgressDatabase OpenDatabase()
     {
