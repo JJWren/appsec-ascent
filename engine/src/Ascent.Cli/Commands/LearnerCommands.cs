@@ -35,11 +35,14 @@ public sealed class StartSettings : EngineSettings
     public bool Later { get; init; }
 }
 
-/// <summary><c>ascent start</c>: creates the profile, prompts for the exam date when due, and shows what's next.</summary>
-public sealed class StartCommand(EngineHost host) : Command<StartSettings>
+/// <summary>
+/// <c>ascent start</c>: creates the profile and the workspace, offers once to make the workspace a git repository (P4),
+/// prompts for the exam date when due, and shows what's next.
+/// </summary>
+public sealed class StartCommand(EngineHost host) : AsyncCommand<StartSettings>
 {
     /// <inheritdoc />
-    public override int Execute(CommandContext context, StartSettings settings, CancellationToken cancellationToken)
+    public override async Task<int> ExecuteAsync(CommandContext context, StartSettings settings, CancellationToken cancellationToken)
     {
         var services = host.Services;
         var renderer = host.Renderer;
@@ -51,6 +54,8 @@ public sealed class StartCommand(EngineHost host) : Command<StartSettings>
         {
             renderer.Status(Outcome.Info, "Before any Lab, read and accept the rules of engagement: ascent rules");
         }
+
+        await OfferWorkspaceAsync(services, profile, cancellationToken);
 
         var today = services.Calendar.Today;
         if (ExamPrompt.ShouldPrompt(services.Catalog.SeasonComplete, profile, today))
@@ -65,6 +70,39 @@ public sealed class StartCommand(EngineHost host) : Command<StartSettings>
             ? "Every Quest is complete. Run 'ascent status' to see where you stand."
             : "Next Quest: " + next.Id + " · " + next.Title + " (" + next.ExamDomain + ", Objective " + next.ObjectiveId + "). Open it with 'ascent quest " + next.Id + "'.");
         return ExitCodes.Ok;
+    }
+
+    // P4: the workspace is created with Release 0, and, once, the Engine offers to make it a git repository.
+    private async Task OfferWorkspaceAsync(EngineServices services, LearnerProfile profile, CancellationToken cancellationToken)
+    {
+        var workspace = services.Workspace;
+        if (workspace.EnsureCreated())
+        {
+            host.Renderer.Line("Created your workspace in my-work/, which git ignores in this repository.");
+        }
+
+        if (workspace.IsRepository || !workspace.GitAvailable || profile.Values.ContainsKey(ProfileKeys.WorkspaceOfferedUtc))
+        {
+            return;
+        }
+
+        host.Renderer.Line("my-work/ can be its own git repository, so your fixes are kept on portfolio branches as you move through the Domains. These commands would run in my-work/:");
+        foreach (var step in Labs.Workspace.InitSteps)
+        {
+            host.Renderer.Line("  " + step);
+        }
+
+        var accepted = host.Prompter.Confirm("Make my-work/ a git repository?", defaultValue: true);
+        services.ProfileService.MarkWorkspaceOffered();
+        if (accepted)
+        {
+            await workspace.RunAsync(Labs.Workspace.InitSteps, cancellationToken);
+            host.Renderer.Status(Outcome.Pass, "my-work/ is now a git repository.");
+        }
+        else
+        {
+            host.Renderer.Line("OK. 'ascent release next' will offer again before it archives anything.");
+        }
     }
 
     private void PromptForExamDate(EngineServices services, bool later, DateOnly today)
@@ -288,6 +326,11 @@ public sealed class TeachBackCommand(EngineHost host) : Command<TeachBackSetting
     public override int Execute(CommandContext context, TeachBackSettings settings, CancellationToken cancellationToken)
     {
         var services = host.Services;
+        if (services.Catalog.Labs.Any(l => l.Id == settings.Id))
+        {
+            return ExplainLab(services, settings);
+        }
+
         var quest = services.Quests.Find(settings.Id);
         var text = settings.File is { } file
             ? ReadFile(file)
@@ -299,6 +342,28 @@ public sealed class TeachBackCommand(EngineHost host) : Command<TeachBackSetting
         host.Renderer.Line(view.Status == QuestStatus.Complete
             ? "Quest complete."
             : "Lesson complete. Finish the remaining activities to complete the Quest.");
+        return ExitCodes.Ok;
+    }
+
+    // The Lab's Explain step (LABE-03): 30–150 words once the fix passes.
+    private int ExplainLab(EngineServices services, TeachBackSettings settings)
+    {
+        var labs = services.Labs;
+        var lab = labs.Find(settings.Id);
+        var wasFixed = labs.Stage(lab.Id) == LabStage.Fixed;
+        var text = settings.File is { } file
+            ? ReadFile(file)
+            : settings.Text ?? host.Prompter.Ask(
+                "Explain what you found and how you fixed it (30–150 words):",
+                value => TeachBackService.CountWords(value) is >= TeachBackService.LabMinWords and <= TeachBackService.MaxWords ? null : "Use 30–150 words.");
+        var path = labs.Explain(lab.Id, text, services.TeachBacks);
+        host.Renderer.Status(Outcome.Pass, "Teach-back saved to " + path + ".");
+        if (wasFixed)
+        {
+            host.Renderer.Line(string.Create(CultureInfo.InvariantCulture, $"Explain step done, +{lab.Explain} XP. Lab complete."));
+        }
+
+        Activities.CompleteQuests(host, lab.Id);
         return ExitCodes.Ok;
     }
 
@@ -318,14 +383,15 @@ public sealed class TeachBackCommand(EngineHost host) : Command<TeachBackSetting
     }
 }
 
-/// <summary><c>ascent status</c>: Rank, XP, badges, weekly goal, rematches and Season 2 (WG-04, RNK-*, S2-01).</summary>
-public sealed class StatusCommand(EngineHost host) : Command<EngineSettings>
+/// <summary><c>ascent status</c>: Rank, XP, badges, weekly goal, rematches, Cloud Stage overruns and Season 2 (WG-04, RNK-*, CLD-05, S2-01).</summary>
+public sealed class StatusCommand(EngineHost host) : AsyncCommand<EngineSettings>
 {
     /// <inheritdoc />
-    public override int Execute(CommandContext context, EngineSettings settings, CancellationToken cancellationToken)
+    public override async Task<int> ExecuteAsync(CommandContext context, EngineSettings settings, CancellationToken cancellationToken)
     {
         var services = host.Services;
         var renderer = host.Renderer;
+        await Activities.WarnAboutOverrunsAsync(host, cancellationToken);
         var bosses = services.Bosses;
         var best = bosses.BestScores();
         var (rank, promoted, total, coreXpMax) = services.EvaluateRank(best);
@@ -352,7 +418,7 @@ public sealed class StatusCommand(EngineHost host) : Command<EngineSettings>
             domainsCleared,
             services.WeekGoal.LongestStreak(),
             services.Simulations.ExamReady()));
-        var badgeNames = badges.Select(b => b.ToString()).Concat(cleared.Select(d => "DomainCleared(" + d + ")")).ToList();
+        var badgeNames = badges.Select(Badges.Name).Concat(cleared.Select(d => "Domain Cleared (" + d + ")")).ToList();
         renderer.Line("Badges: " + (badgeNames.Count == 0 ? "none yet" : string.Join(", ", badgeNames)));
 
         if (best.Count > 0)

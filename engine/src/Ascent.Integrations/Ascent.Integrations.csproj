@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Ascent.Integrations</RootNamespace>
+    <Description>AppSec Ascent integrations: the environment doctor, Content Bugs and the portfolio. It never references Sealing (PORT-02).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ascent.Core\Ascent.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ascent.Engine.Tests" />
+    <InternalsVisibleTo Include="Ascent.Cli.Tests" />
+  </ItemGroup>
+
+</Project>

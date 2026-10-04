@@ -228,6 +228,10 @@ public sealed class XpAndRankTests
         events.Add(Event(XpKind.TeardownPenalty, "deploy-6"));
         var (fewer, _) = Badges.Compute(new BadgeFacts(events, new Dictionary<string, int> { ["D1"] = 99 }, [], 7, ExamReady: false));
         fewer.ShouldBe([Badge.FirstBlood, Badge.BugHunter, Badge.PromptBreaker, Badge.DeepDiver]);
+
+        Enum.GetValues<Badge>().Select(Badges.Name).ShouldBe(
+            ["First Blood", "Clean Sweep", "Bug Hunter", "Frugal Engineer", "Prompt Breaker", "Deep Diver", "Marathoner", "Exam Ready"]);
+        Should.Throw<ArgumentOutOfRangeException>(() => Badges.Name((Badge)99));
     }
 
     // The Season's shape: a Quest per Objective of the real outline, Orientation and Capstone Quests, a drill and a

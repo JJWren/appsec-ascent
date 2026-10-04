@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Ascent.Labs</RootNamespace>
+    <Description>AppSec Ascent Labs: the Lab lifecycle, the Learner workspace, verify, Cloud Stages, cost guardrails and Releases.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ascent.Sealing\Ascent.Sealing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ascent.Engine.Tests" />
+    <InternalsVisibleTo Include="Ascent.Cli.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -80,6 +80,31 @@ public sealed class ProgressStoresTests
         attempts.ActiveBoss()!.ItemIds.ShouldBe(["qb-1", "qb-2"]);
     }
 
+    [Fact]
+    [Trait("Rule", "LABE-01")]
+    public void Lab_progress_records_each_stage_once_and_never_moves_back_to_not_started()
+    {
+        using var fixture = CurriculumFixture.Create();
+        using var game = new GameHarness(fixture);
+        var labs = game.LabStates;
+
+        labs.MoveTo("lab-b", LabStage.Started, At);
+        labs.MoveTo("lab-a", LabStage.Started, At);
+        labs.MoveTo("lab-a", LabStage.Started, At.AddDays(1));
+        labs.MoveTo("lab-a", LabStage.FlagCaptured, At.AddHours(1));
+        labs.CountVerify("lab-a");
+
+        labs.All().Select(l => (l.LabId, l.Stage)).ShouldBe([("lab-a", LabStage.FlagCaptured), ("lab-b", LabStage.Started)]);
+        labs.Find("lab-a")!.ShouldBe(new LabStateRecord("lab-a", LabStage.FlagCaptured, At, At.AddHours(1), null, null, 1));
+        labs.Find("lab-z").ShouldBeNull();
+        Should.Throw<ArgumentOutOfRangeException>(() => labs.MoveTo("lab-a", LabStage.NotStarted, At));
+
+        var releases = new ReleaseStore(game.Database);
+        releases.Unlock("D1", At, skipped: false);
+        releases.Unlock("D1", At.AddDays(1), skipped: true);
+        releases.All().ShouldBe([new ReleaseRecord("D1", At, false)]);
+    }
+
     private static object? Scalar(GameHarness game, string sql)
     {
         using SqliteCommand command = game.Database.Command();

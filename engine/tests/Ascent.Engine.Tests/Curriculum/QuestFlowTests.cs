@@ -215,6 +215,7 @@ public sealed class QuestFlowTests
     }
 
     [Theory]
+    [Trait("Rule", "LABE-03")]
     [InlineData(0, false, false)]
     [InlineData(1, false, true)]
     [InlineData(150, false, true)]

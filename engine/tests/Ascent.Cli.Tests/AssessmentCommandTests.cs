@@ -237,7 +237,7 @@ public sealed class AssessmentCommandTests
 
         output.ShouldContain("PASS: Form B: 125/125 (100%), target 70%.");
         output.ShouldContain("PASS: Exam Ready: both forms reached the target on the first attempt.");
-        (await engine.RunAsync("status")).Output.ShouldContain("ExamReady");
+        (await engine.RunAsync("status")).Output.ShouldContain("Exam Ready");
     }
 
     internal static CurriculumFixture Pool(string examDomain, int perObjective)

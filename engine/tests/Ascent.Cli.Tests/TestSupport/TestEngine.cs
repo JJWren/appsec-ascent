@@ -32,6 +32,24 @@ internal sealed class TestEngine : IDisposable
     /// <summary>Seeded randomness, so draws and IDs repeat (P26).</summary>
     public IRandomSource Random { get; set; } = new SeededRandom(7);
 
+    /// <summary>External tools; by default none is installed, so no test starts a real tool unless it opts in.</summary>
+    public IProcessRunner Processes { get; set; } = new RecordingProcessRunner();
+
+    /// <summary>The Local Stage, or null for the production adapter.</summary>
+    public Ascent.Labs.IOrchestrator? Orchestrator { get; set; }
+
+    /// <summary>The AI reviewer's transport, or null for the real client.</summary>
+    public Ascent.Deliverables.IReviewerClient? ReviewerClient { get; set; }
+
+    /// <summary>The HTTP transport, or null for a real one.</summary>
+    public HttpMessageHandler? HttpTransport { get; set; }
+
+    /// <summary>Whether Windows-only Labs can run.</summary>
+    public bool IsWindows { get; set; } = true;
+
+    /// <summary>URLs the Engine asked to open.</summary>
+    public List<Uri> OpenedUrls { get; } = [];
+
     public EnginePaths Paths => new(Root);
 
     /// <summary>The real repository root (the folder containing AppSecAscent.slnx).</summary>
@@ -72,6 +90,12 @@ internal sealed class TestEngine : IDisposable
         Time = time ?? Clock,
         Random = Random,
         TrustedKeyPem = TrustedKeyPem,
+        Processes = Processes,
+        Orchestrator = Orchestrator,
+        ReviewerClient = ReviewerClient,
+        HttpTransport = HttpTransport,
+        IsWindows = IsWindows,
+        OpenUrl = OpenedUrls.Add,
         Output = output,
         Input = new StringReader(Input),
         Environment = name => Environment.TryGetValue(name, out var value) ? value : null,

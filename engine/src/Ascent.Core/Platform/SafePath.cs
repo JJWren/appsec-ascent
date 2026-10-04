@@ -39,6 +39,27 @@ public static class SafePath
         return true;
     }
 
+    /// <summary>
+    /// Throws <see cref="UnsafePathException"/> when <paramref name="path"/>, or any folder between it and
+    /// <paramref name="root"/>, is a symbolic link or junction. Writes into a Learner-controlled folder use this so a
+    /// link can't redirect them outside it (P9).
+    /// </summary>
+    public static void EnsureNoLinks(string root, string path)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(root);
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        var rootFull = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
+        for (var current = Path.GetFullPath(path); IsUnder(rootFull, current); current = Path.GetDirectoryName(current)!)
+        {
+            // LinkTarget doesn't follow the link, so a dangling link is caught too.
+            FileSystemInfo info = Directory.Exists(current) ? new DirectoryInfo(current) : new FileInfo(current);
+            if (info.LinkTarget is not null || (info.Exists && (info.Attributes & FileAttributes.ReparsePoint) != 0))
+            {
+                throw new UnsafePathException(Path.GetRelativePath(rootFull, current), "it is a link, and writes never follow links");
+            }
+        }
+    }
+
     /// <summary>True when <paramref name="path"/> is strictly inside <paramref name="root"/>.</summary>
     public static bool IsUnder(string root, string path)
     {

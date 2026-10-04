@@ -26,10 +26,16 @@ public static class SafeArchive
     private static readonly DateTimeOffset FixedTime = new(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
     /// <summary>Extracts a tar.gz into <paramref name="destination"/> and returns the number of files written.</summary>
-    public static int ExtractTarGz(ReadOnlySpan<byte> archive, string destination) =>
-        ExtractTarGz(archive, destination, new ArchiveLimits(MaxEntries, MaxTotalBytes, MaxFileBytes));
+    /// <param name="archive">The archive.</param>
+    /// <param name="destination">The folder to extract into.</param>
+    /// <param name="overwrite">
+    /// True to replace existing files, for Lab Modules and Releases in the Learner workspace. Writes never follow a
+    /// link in the destination, so a link can't redirect them outside it.
+    /// </param>
+    public static int ExtractTarGz(ReadOnlySpan<byte> archive, string destination, bool overwrite = false) =>
+        ExtractTarGz(archive, destination, new ArchiveLimits(MaxEntries, MaxTotalBytes, MaxFileBytes), overwrite);
 
-    internal static int ExtractTarGz(ReadOnlySpan<byte> archive, string destination, ArchiveLimits limits)
+    internal static int ExtractTarGz(ReadOnlySpan<byte> archive, string destination, ArchiveLimits limits, bool overwrite = false)
     {
         Directory.CreateDirectory(destination);
         using var compressed = new MemoryStream(archive.ToArray(), writable: false);
@@ -48,12 +54,15 @@ public static class SafeArchive
             switch (entry.EntryType)
             {
                 case TarEntryType.Directory:
-                    Directory.CreateDirectory(SafePath.Resolve(destination, entry.Name.TrimEnd('/')));
+                    var folder = SafePath.Resolve(destination, entry.Name.TrimEnd('/'));
+                    SafePath.EnsureNoLinks(destination, folder);
+                    Directory.CreateDirectory(folder);
                     break;
                 case TarEntryType.RegularFile or TarEntryType.V7RegularFile:
                     var path = SafePath.Resolve(destination, entry.Name);
+                    SafePath.EnsureNoLinks(destination, path);
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                    total += CopyCapped(entry.DataStream, path, limits.FileBytes, limits.TotalBytes - total);
+                    total += CopyCapped(entry.DataStream, path, limits.FileBytes, limits.TotalBytes - total, overwrite);
                     files++;
                     break;
                 default:
@@ -100,9 +109,9 @@ public static class SafeArchive
         return output.ToArray();
     }
 
-    private static long CopyCapped(Stream? source, string path, long maxFileBytes, long remainingBudget)
+    private static long CopyCapped(Stream? source, string path, long maxFileBytes, long remainingBudget, bool overwrite)
     {
-        using var target = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
+        using var target = new FileStream(path, overwrite ? FileMode.Create : FileMode.CreateNew, FileAccess.Write);
         if (source is null)
         {
             return 0;

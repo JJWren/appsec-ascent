@@ -36,6 +36,9 @@ public sealed record ToolCommand(ExternalTool Tool, IReadOnlyList<string> Argume
 {
     /// <summary>Text written to standard input, then closed. Secrets travel this way, never as arguments (P5).</summary>
     public string? StandardInput { get; init; }
+
+    /// <summary>Extra environment variables for the run, on top of the Engine's own environment.</summary>
+    public IReadOnlyDictionary<string, string> Environment { get; init; } = new Dictionary<string, string>();
 }
 
 /// <summary>The outcome of a tool run. Output is untrusted (P11) and capped at <see cref="ProcessRunner.OutputLimit"/> per stream.</summary>
@@ -128,6 +131,11 @@ public sealed class ProcessRunner : IProcessRunner
         foreach (var argument in command.Arguments)
         {
             startInfo.ArgumentList.Add(argument);
+        }
+
+        foreach (var (name, value) in command.Environment)
+        {
+            startInfo.Environment[name] = value;
         }
 
         using var process = new Process { StartInfo = startInfo };

@@ -70,6 +70,14 @@ public sealed class ProgressDatabase : IDisposable, Ascent.Core.Progress.IProgre
     public static ProgressDatabase Open(EnginePaths paths, TimeProvider time, IOwnerOnlyFiles files) =>
         Open(paths, time, files, Migrator.All);
 
+    /// <summary>Runs <c>PRAGMA integrity_check</c> (P16); "ok" means the database is sound.</summary>
+    public string IntegrityCheck()
+    {
+        using var command = Command();
+        command.CommandText = "PRAGMA integrity_check;";
+        return command.ExecuteScalar() as string ?? "no answer";
+    }
+
     /// <summary>
     /// Moves a damaged database and its WAL files into the backups folder as <c>damaged-progress-*.db</c>, so a fresh
     /// one can be created for <c>progress import</c> (REL-U2-03). Backup pruning never touches these files.

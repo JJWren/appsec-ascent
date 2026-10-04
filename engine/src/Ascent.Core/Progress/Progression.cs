@@ -153,6 +153,20 @@ public sealed record BadgeFacts(
 /// <summary>Computes badges from progress.</summary>
 public static class Badges
 {
+    /// <summary>A badge's display name.</summary>
+    public static string Name(Badge badge) => badge switch
+    {
+        Badge.FirstBlood => "First Blood",
+        Badge.CleanSweep => "Clean Sweep",
+        Badge.BugHunter => "Bug Hunter",
+        Badge.FrugalEngineer => "Frugal Engineer",
+        Badge.PromptBreaker => "Prompt Breaker",
+        Badge.DeepDiver => "Deep Diver",
+        Badge.Marathoner => "Marathoner",
+        Badge.ExamReady => "Exam Ready",
+        _ => throw new ArgumentOutOfRangeException(nameof(badge), badge, "Unknown badge."),
+    };
+
     /// <summary>The earned badges, plus a "Domain Cleared" entry per cleared Domain.</summary>
     public static (IReadOnlyList<Badge> Badges, IReadOnlyList<string> DomainsCleared) Compute(BadgeFacts facts)
     {

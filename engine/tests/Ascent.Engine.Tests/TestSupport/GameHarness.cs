@@ -5,8 +5,13 @@ using Ascent.Core.Curriculum;
 using Ascent.Core.Platform;
 using Ascent.Core.Progress;
 using Ascent.Core.Time;
+using Ascent.Deliverables;
+using Ascent.Integrations;
+using Ascent.Labs;
+using Ascent.Labs.Cloud;
 using Ascent.Sealing;
 using Ascent.Sealing.Crypto;
+using Ascent.Sealing.Flags;
 using Ascent.Sealing.KeyRelease;
 using Ascent.Storage;
 using Ascent.Tests.Shared;
@@ -79,6 +84,56 @@ internal sealed class GameHarness : IDisposable
     public BossFightService Bosses => new(Catalog, Attempts, Reviews, Ledger, Random, Clock, Database);
 
     public SimulationService Simulations => new(Catalog, Attempts, Clock);
+
+    /// <summary>External tools: none is installed until a test adds it.</summary>
+    public RecordingProcessRunner Processes { get; } = new();
+
+    public FixtureOrchestrator Orchestrator { get; } = new();
+
+    public bool IsWindows { get; set; } = true;
+
+    public LabStateStore LabStates => new(Database);
+
+    public FlagService Flags => new(Random, Clock, new LabFlagStore(Database));
+
+    public Workspace Workspace => new(Fixture.Paths, Processes);
+
+    public LabService Labs => new(
+        new LabDependencies(
+            Catalog,
+            LabStates,
+            Flags,
+            Sealed,
+            Workspace,
+            Orchestrator,
+            new Planter(Processes, Files),
+            new VerifyRunner(Sealed, Processes, Fixture.Paths, Files, Random),
+            Ledger,
+            Facts,
+            new ReleaseStore(Database),
+            Database,
+            Clock),
+        IsWindows);
+
+    public ReleaseManager Releases => new(new ReleaseDependencies(
+        Catalog, new ReleaseStore(Database), Quests, Attempts, LabStates, Ledger, new Season2Store(Database), Sealed, Workspace, Database, Clock));
+
+    public AzureCli Az => new(Processes, Fixture.Root);
+
+    public CloudDeploymentStore Deployments => new(Database);
+
+    public CloudStage Cloud => new(new CloudDependencies(Az, Workspace, Deployments, Ledger, Database, Clock));
+
+    public DeliverableCatalog DeliverableCatalog => DeliverableCatalog.From(ContentLoader.Load(Fixture.Root));
+
+    public DeliverableStore DeliverableStore => new(Database);
+
+    public DeliverableService Deliverables => new(DeliverableCatalog, DeliverableStore, Sealed, Ledger, Fixture.Paths, Database, Clock);
+
+    public ContentBugService ContentBugs => new(new ContentBugStore(Database), Cards, Ledger, Database, Clock);
+
+    /// <summary>Accepts the rules of engagement, which every Lab needs.</summary>
+    public void AcceptRules() => new Core.Profile.ProfileService(new ProfileStore(Database), Clock, Random).AcceptRules();
 
     /// <summary>Closes and reopens the database, as if the Engine had crashed and restarted.</summary>
     public void Restart()

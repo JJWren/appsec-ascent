@@ -37,7 +37,34 @@ public sealed record QuestInfo(
 /// <param name="Red">Red XP.</param>
 /// <param name="Blue">Blue XP.</param>
 /// <param name="Explain">Explain XP.</param>
-public sealed record LabInfo(string Id, string ObjectiveId, int Release, bool Bonus, bool WindowsOnly, int Red, int Blue, int Explain);
+public sealed record LabInfo(string Id, string ObjectiveId, int Release, bool Bonus, bool WindowsOnly, int Red, int Blue, int Explain)
+{
+    /// <summary>The Lab Module's bundle (tier <c>start</c>).</summary>
+    public string ModuleRef { get; init; } = Id + ".module";
+
+    /// <summary>The plant spec's bundle (tier <c>start</c>).</summary>
+    public string PlantRef { get; init; } = Id + ".plant";
+
+    /// <summary>The security tests' bundle (tier <c>earned</c>).</summary>
+    public string TestsRef { get; init; } = Id + ".tests";
+
+    /// <summary>The reference fix's bundle (tier <c>earned</c>).</summary>
+    public string FixRef { get; init; } = Id + ".fix";
+
+    /// <summary>The Local Stage's services.</summary>
+    public IReadOnlyList<string> Services { get; init; } = [];
+
+    /// <summary>The Cloud Stage, if the Lab has one.</summary>
+    public CloudStageInfo? Cloud { get; init; }
+}
+
+/// <summary>A Lab's Cloud Stage (lab manifest <c>stages.cloud</c>).</summary>
+/// <param name="Bicep">The template, relative to the workspace's <c>throughline/</c> folder.</param>
+/// <param name="EstimateUsd">The pre-flight estimate in US dollars (CLD-02).</param>
+/// <param name="FreeTier">True when the deployment stays within free grants.</param>
+/// <param name="PaidSideQuest">True for a paid side-quest, which needs a typed confirmation.</param>
+/// <param name="TeardownWindowHours">Hours until <c>expires-on</c> (CLD-03).</param>
+public sealed record CloudStageInfo(string Bicep, decimal EstimateUsd, bool FreeTier, bool PaidSideQuest, int TeardownWindowHours);
 
 /// <summary>A Question Bank item, from its bundle header only (never its content).</summary>
 /// <param name="ItemId">The question ID.</param>
@@ -195,15 +222,32 @@ public sealed class CurriculumCatalog
     private static LabInfo Lab(JsonObject data)
     {
         var xp = JsonRead.Obj(data, "xp");
+        var id = JsonRead.Str(data, "id")!;
+        var sealedRefs = JsonRead.Obj(data, "sealed");
+        var stages = JsonRead.Obj(data, "stages");
+        var cloud = JsonRead.Obj(stages, "cloud");
         return new LabInfo(
-            JsonRead.Str(data, "id")!,
+            id,
             JsonRead.Str(data, "objectiveId") ?? string.Empty,
             JsonRead.WholeNumber(data, "release") ?? 0,
             JsonRead.Bool(data, "bonus") == true,
             JsonRead.Bool(data, "windowsOnly") == true,
             JsonRead.WholeNumber(xp, "red") ?? 25,
             JsonRead.WholeNumber(xp, "blue") ?? 40,
-            JsonRead.WholeNumber(xp, "explain") ?? 10);
+            JsonRead.WholeNumber(xp, "explain") ?? 10)
+        {
+            ModuleRef = JsonRead.Str(JsonRead.Obj(data, "module"), "sealedRef") ?? id + ".module",
+            PlantRef = JsonRead.Str(sealedRefs, "plant") ?? id + ".plant",
+            TestsRef = JsonRead.Str(sealedRefs, "tests") ?? id + ".tests",
+            FixRef = JsonRead.Str(sealedRefs, "fix") ?? id + ".fix",
+            Services = JsonRead.Strings(JsonRead.Arr(JsonRead.Obj(stages, "local"), "services")),
+            Cloud = cloud is null ? null : new CloudStageInfo(
+                JsonRead.Str(cloud, "bicep") ?? string.Empty,
+                (decimal)(JsonRead.Num(cloud, "estimateUsd") ?? 0),
+                JsonRead.Bool(cloud, "freeTier") == true,
+                JsonRead.Bool(cloud, "paidSideQuest") == true,
+                JsonRead.WholeNumber(cloud, "teardownWindowHours") ?? 4),
+        };
     }
 
     private static List<string> Ids(ContentIndex index, DocumentKind kind) =>

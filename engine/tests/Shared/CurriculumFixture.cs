@@ -117,16 +117,28 @@ internal sealed class CurriculumFixture : IDisposable
             + "---\n# Quest " + id + "\n\n" + body + "\n");
     }
 
-    /// <summary>Adds a Lab manifest.</summary>
-    public CurriculumFixture Lab(string id, string objectiveId, bool bonus = false, bool windowsOnly = false, int red = 25, int blue = 40, int explain = 10) => Write(
+    /// <summary>
+    /// Adds a Lab manifest. Its Release defaults to 0, the workspace's first, so tests can start it; <paramref name="cloud"/>
+    /// is the YAML of a <c>stages.cloud</c> block, indented under <c>stages:</c>.
+    /// </summary>
+    public CurriculumFixture Lab(
+        string id,
+        string objectiveId,
+        bool bonus = false,
+        bool windowsOnly = false,
+        int red = 25,
+        int blue = 40,
+        int explain = 10,
+        int release = 0,
+        string? cloud = null) => Write(
         "labs/" + id + "/lab.yaml",
         "id: " + id + "\n"
         + "objectiveId: \"" + objectiveId + "\"\n"
         + "outlineVersion: \"" + OutlineVersion + "\"\n"
-        + "release: 1\n"
+        + "release: " + release.ToString(CultureInfo.InvariantCulture) + "\n"
         + "brief: BRIEF.md\n"
         + "module:\n  sealedRef: " + id + ".module\n"
-        + "stages:\n  local:\n    services: [api]\n"
+        + "stages:\n  local:\n    services: [api]\n" + (cloud ?? string.Empty)
         + "sealed:\n  tests: " + id + ".tests\n  fix: " + id + ".fix\n  plant: " + id + ".plant\n"
         + "xp:\n  red: " + red.ToString(CultureInfo.InvariantCulture) + "\n  blue: " + blue.ToString(CultureInfo.InvariantCulture) + "\n  explain: " + explain.ToString(CultureInfo.InvariantCulture) + "\n"
         + "windowsOnly: " + (windowsOnly ? "true" : "false") + "\n"
@@ -143,6 +155,13 @@ internal sealed class CurriculumFixture : IDisposable
         "id: " + id + "\nobjectiveIds: [\"" + objectiveId + "\"]\ntitle: Deliverable " + id + "\n"
         + "sections:\n  - key: main\n    title: Main\n    required: true\n    fields:\n      - key: summary\n        type: text\n        required: true\n"
         + "rubricId: rub-" + id + "\nreferenceRef: " + id + ".reference\nportfolioEligible: true\n");
+
+    /// <summary>Adds a rubric with criteria of the given weights, each with levels 0, 2 and 4.</summary>
+    public CurriculumFixture Rubric(string id, int passThreshold, params (string Key, int Weight)[] criteria) => Write(
+        "deliverables/rubrics/" + id + ".yaml",
+        "id: " + id + "\npassThreshold: " + passThreshold.ToString(CultureInfo.InvariantCulture) + "\ncriteria:\n"
+        + string.Concat(criteria.Select(c => "  - key: " + c.Key + "\n    description: Judges " + c.Key + " well.\n    weight: " + c.Weight.ToString(CultureInfo.InvariantCulture)
+            + "\n    levels:\n      - { score: 0, descriptor: Missing }\n      - { score: 2, descriptor: Partly there }\n      - { score: 4, descriptor: Complete }\n")));
 
     /// <summary>Adds an outline mapping.</summary>
     public CurriculumFixture Mapping(string from, string to, params (string? From, string[] To, string Kind)[] entries) => Write(
@@ -186,10 +205,14 @@ internal sealed class CurriculumFixture : IDisposable
         return Seal(itemId, "question", pool == "simulation" ? SealTier.Simulation : SealTier.Practice, Encoding.UTF8.GetBytes(question.ToJsonString()), objectiveId, examDomain ?? "D" + objectiveId[0], pool);
     }
 
+    /// <summary>Seals and signs a folder as a tar.gz item, such as a Lab Module or a Release.</summary>
+    public CurriculumFixture SealFolder(string itemId, string itemType, SealTier tier, string folder) =>
+        Seal(itemId, itemType, tier, Ascent.Sealing.Unsealing.SafeArchive.CreateTarGz(folder), contentType: Ascent.Sealing.Unsealing.SafeArchive.ContentType);
+
     /// <summary>Seals and signs any item.</summary>
-    public CurriculumFixture Seal(string itemId, string itemType, SealTier tier, byte[] plaintext, string? objectiveId = null, string? examDomain = null, string? pool = null)
+    public CurriculumFixture Seal(string itemId, string itemType, SealTier tier, byte[] plaintext, string? objectiveId = null, string? examDomain = null, string? pool = null, string contentType = "application/json")
     {
-        var header = BundleHeader.Create(itemId, itemType, tier, "application/json", RandomNumberGenerator.GetBytes(12), Created, objectiveId, examDomain, pool);
+        var header = BundleHeader.Create(itemId, itemType, tier, contentType, RandomNumberGenerator.GetBytes(12), Created, objectiveId, examDomain, pool);
         var (ciphertext, tag) = BundleCipher.Encrypt(Keys.ItemKey(tier, itemId), header.Nonce, plaintext, header.CanonicalBytes());
         var bundle = new SealedBundle(header, ciphertext, tag, []);
         bundle = bundle.WithSignature(SigningKey.SignData(bundle.SigningInput(), HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation));

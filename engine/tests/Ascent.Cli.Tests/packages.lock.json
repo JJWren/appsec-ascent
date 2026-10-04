@@ -367,6 +367,9 @@
           "Ascent.Assessment": "[1.0.0, )",
           "Ascent.Content": "[1.0.0, )",
           "Ascent.Core": "[1.0.0, )",
+          "Ascent.Deliverables": "[1.0.0, )",
+          "Ascent.Integrations": "[1.0.0, )",
+          "Ascent.Labs": "[1.0.0, )",
           "Ascent.Sealing": "[1.0.0, )",
           "Ascent.Storage": "[1.0.0, )",
           "Spectre.Console.Cli": "[0.57.2, )"
@@ -391,6 +394,24 @@
         "type": "Project",
         "dependencies": {
           "Ascent.Content": "[1.0.0, )"
+        }
+      },
+      "ascent.deliverables": {
+        "type": "Project",
+        "dependencies": {
+          "Ascent.Sealing": "[1.0.0, )"
+        }
+      },
+      "ascent.integrations": {
+        "type": "Project",
+        "dependencies": {
+          "Ascent.Core": "[1.0.0, )"
+        }
+      },
+      "ascent.labs": {
+        "type": "Project",
+        "dependencies": {
+          "Ascent.Sealing": "[1.0.0, )"
         }
       },
       "ascent.sealing": {

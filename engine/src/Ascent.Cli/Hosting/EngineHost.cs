@@ -77,6 +77,9 @@ public sealed class EngineHost : IDisposable
     /// <summary>Services for Learner commands, created on first use.</summary>
     public EngineServices Services => services ??= new EngineServices(this, options);
 
+    /// <summary>Opens a URL in the browser (BUG-01); tests replace this through <see cref="EngineOptions.OpenUrl"/>.</summary>
+    public void OpenUrl(Uri url) => (options.OpenUrl ?? Browser.Open)(url);
+
     /// <summary>Where command output goes (machine-readable JSON included).</summary>
     public TextWriter Out => options.Output ?? System.Console.Out;
 

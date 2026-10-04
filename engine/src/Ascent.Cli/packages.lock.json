@@ -162,6 +162,24 @@
           "Ascent.Content": "[1.0.0, )"
         }
       },
+      "ascent.deliverables": {
+        "type": "Project",
+        "dependencies": {
+          "Ascent.Sealing": "[1.0.0, )"
+        }
+      },
+      "ascent.integrations": {
+        "type": "Project",
+        "dependencies": {
+          "Ascent.Core": "[1.0.0, )"
+        }
+      },
+      "ascent.labs": {
+        "type": "Project",
+        "dependencies": {
+          "Ascent.Sealing": "[1.0.0, )"
+        }
+      },
       "ascent.sealing": {
         "type": "Project",
         "dependencies": {

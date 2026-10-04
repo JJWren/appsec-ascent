@@ -88,6 +88,10 @@ _Avoid_: version, baseline, snapshot
 The isolated part of the Throughline System that carries one Lab's vulnerability. It can be code, configuration, infrastructure-as-code or a pipeline file, and it stays Sealed until the Lab starts.
 _Avoid_: plugin, feature flag
 
+**Learner Workspace**:
+The Learner's own working copy of the current Release, where Lab Modules are unpacked and fixes are made, together with their Deliverables and drill answers. It's kept out of the Program's public history, and it can be its own repository that archives each Domain's work as the Learner moves on.
+_Avoid_: sandbox, scratch folder, my code
+
 **Red → Blue → Explain**:
 The three-step Lab loop. Red: exploit the vulnerability and capture the Flag. Blue: fix it until the security tests pass. Explain: write the Teach-back.
 _Avoid_: attack/defend

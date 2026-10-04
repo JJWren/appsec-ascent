@@ -51,6 +51,12 @@ public static class ProfileKeys
 
     /// <summary>The exam-date prompt is snoozed until this local date (EXM-01).</summary>
     public const string ExamPromptSnoozedUntil = "examPromptSnoozedUntil";
+
+    /// <summary>The Azure region for Cloud Stages.</summary>
+    public const string AzureLocation = "azure.location";
+
+    /// <summary>When <c>start</c> offered to make the workspace a git repository (P4); it offers once.</summary>
+    public const string WorkspaceOfferedUtc = "workspaceOfferedUtc";
 }
 
 /// <summary>The Learner profile, read from its key/value store.</summary>
@@ -89,6 +95,9 @@ public sealed record LearnerProfile(IReadOnlyDictionary<string, string> Values)
     /// <summary>The booked exam date, if any.</summary>
     public DateOnly? ExamDate => DateOnly.TryParseExact(Values.GetValueOrDefault(ProfileKeys.ExamDate), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ? date : null;
 
+    /// <summary>The Azure region for Cloud Stages; <c>eastus</c> unless set.</summary>
+    public string AzureLocation => Values.GetValueOrDefault(ProfileKeys.AzureLocation) is { Length: > 0 } location ? location : "eastus";
+
     /// <summary>The local date the exam prompt is snoozed until, if any.</summary>
     public DateOnly? ExamPromptSnoozedUntil =>
         DateOnly.TryParseExact(Values.GetValueOrDefault(ProfileKeys.ExamPromptSnoozedUntil), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ? date : null;
@@ -115,6 +124,7 @@ public static partial class ConfigCatalog
         new(ProfileKeys.AiEndpoint, "OpenAI-compatible endpoint for the optional AI reviewer (HTTPS, or HTTP on this machine).", ValidateEndpoint),
         new(ProfileKeys.AiModel, "Model name for the AI reviewer.", value => value.Length is > 0 and <= 100 ? null : "Give a model name of up to 100 characters."),
         new(ProfileKeys.ExamDate, "Your exam date (yyyy-MM-dd).", value => DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _) ? null : "Use a date like 2027-02-15."),
+        new(ProfileKeys.AzureLocation, "Azure region for Cloud Stages, such as eastus or westeurope (default eastus).", value => AzureRegionPattern().IsMatch(value) ? null : "Use a region name such as eastus, in lower case."),
     ];
 
     /// <summary>Finds a setting, or null.</summary>
@@ -150,6 +160,9 @@ public static partial class ConfigCatalog
 
     [GeneratedRegex("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$", RegexOptions.CultureInvariant, 1000)]
     private static partial Regex GitHubUserPattern();
+
+    [GeneratedRegex("^[a-z][a-z0-9]{1,39}$", RegexOptions.CultureInvariant, 1000)]
+    private static partial Regex AzureRegionPattern();
 }
 
 /// <summary>Creates the profile, records the rules of engagement, and changes settings (E1-04, E1-07).</summary>
@@ -215,6 +228,9 @@ public sealed class ProfileService
         ArgumentNullException.ThrowIfNull(endpoint);
         store.Write(ProfileKeys.AiRemoteConfirmed, endpoint.GetLeftPart(UriPartial.Authority));
     }
+
+    /// <summary>Records that <c>start</c> offered to make the workspace a git repository, so it offers once (P4).</summary>
+    public void MarkWorkspaceOffered() => store.Write(ProfileKeys.WorkspaceOfferedUtc, Utc.ToText(time.GetUtcNow()));
 
     /// <summary>Snoozes the exam-date prompt until the next local day (EXM-01).</summary>
     public void SnoozeExamPrompt(DateOnly today) => store.Write(ProfileKeys.ExamPromptSnoozedUntil, today.AddDays(1).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));

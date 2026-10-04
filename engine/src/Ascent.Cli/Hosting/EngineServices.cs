@@ -2,11 +2,17 @@ using Ascent.Assessment.Scheduling;
 using Ascent.Assessment.Services;
 using Ascent.Core.Curriculum;
 using Ascent.Core.Domain;
+using Ascent.Core.Platform;
 using Ascent.Core.Profile;
 using Ascent.Core.Progress;
 using Ascent.Core.Time;
+using Ascent.Deliverables;
+using Ascent.Integrations;
+using Ascent.Labs;
+using Ascent.Labs.Cloud;
 using Ascent.Sealing;
 using Ascent.Sealing.Crypto;
+using Ascent.Sealing.Flags;
 using Ascent.Sealing.KeyRelease;
 using Ascent.Storage;
 
@@ -25,6 +31,8 @@ public sealed class EngineServices : IDisposable
     private SignatureVerifier? verifier;
     private SealedStore? sealedStore;
     private LocalCalendar? calendar;
+    private HttpClient? http;
+    private DeliverableCatalog? deliverableCatalog;
 
     internal EngineServices(EngineHost host, EngineOptions options)
     {
@@ -134,8 +142,86 @@ public sealed class EngineServices : IDisposable
         return (rank, promoted, total, coreXpMax);
     }
 
+    /// <summary>Lab progress.</summary>
+    public ILabStateStore LabStates => new LabStateStore(Database);
+
+    /// <summary>The Learner workspace, <c>my-work/</c> (P4).</summary>
+    public Workspace Workspace => new(host.Paths, host.Processes);
+
+    /// <summary>The Lab lifecycle.</summary>
+    public LabService Labs => new(
+        new LabDependencies(
+            Catalog,
+            LabStates,
+            new FlagService(host.Random, host.Time, new LabFlagStore(Database)),
+            Sealed,
+            Workspace,
+            options.Orchestrator ?? new LocalStageOrchestrator(),
+            new Planter(host.Processes, host.Files),
+            new VerifyRunner(Sealed, host.Processes, host.Paths, host.Files, host.Random),
+            Ledger,
+            Facts,
+            new ReleaseStore(Database),
+            Database,
+            host.Time),
+        options.IsWindows ?? OperatingSystem.IsWindows());
+
+    /// <summary>Releases (ADR 0006).</summary>
+    public ReleaseManager Releases => new(new ReleaseDependencies(
+        Catalog,
+        new ReleaseStore(Database),
+        Quests,
+        Attempts,
+        LabStates,
+        Ledger,
+        new Season2Store(Database),
+        Sealed,
+        Workspace,
+        Database,
+        host.Time));
+
+    /// <summary>The Azure CLI.</summary>
+    public AzureCli Az => new(host.Processes, host.Paths.RepoRoot);
+
+    /// <summary>The cost guard (CLD-01).</summary>
+    public CostGuard CostGuard => new(Az, Workspace);
+
+    /// <summary>Cloud Stages (CLD-02..05).</summary>
+    public CloudStage Cloud => new(new CloudDependencies(Az, Workspace, new CloudDeploymentStore(Database), Ledger, Database, host.Time));
+
+    /// <summary>The Engine's single HTTP client, behind the outbound allowlist (P13).</summary>
+    public HttpClient Http => http ??= EngineHttp.Create(new NetworkPolicy(Profile.AiEndpoint), EngineHost.Version, options.HttpTransport);
+
+    /// <summary>The Azure Retail Prices API (CLD-02).</summary>
+    public RetailPricesClient RetailPrices => new(Http, host.Time);
+
+    /// <summary>Deliverable templates, rubrics and drills.</summary>
+    public DeliverableCatalog DeliverableCatalog => deliverableCatalog ??= DeliverableCatalog.From(host.Content);
+
+    /// <summary>Deliverables and drills (DLE-01..03).</summary>
+    public DeliverableService Deliverables => new(DeliverableCatalog, new DeliverableStore(Database), Sealed, Ledger, host.Paths, Database, host.Time);
+
+    /// <summary>The optional AI reviewer (DLE-04).</summary>
+    public AiReviewer Reviewer => new(options.ReviewerClient ?? new OpenAiCompatibleClient(Http), Ledger, host.Random);
+
+    /// <summary>The environment doctor (E1-03).</summary>
+    public EnvironmentDoctor Doctor => new(host.Processes, host.Paths.RepoRoot);
+
+    /// <summary>Content Bugs (SU-05, BUG-02).</summary>
+    public ContentBugService ContentBugs => new(new ContentBugStore(Database), Cards, Ledger, Database, host.Time);
+
+    /// <summary>The public GitHub API (BUG-02).</summary>
+    public GitHubIssuesClient GitHub => new(Http, host.Time);
+
+    /// <summary>The portfolio (PORT-01..03).</summary>
+    public PortfolioExporter Portfolio => new(host.Paths.RepoRoot);
+
     /// <inheritdoc />
-    public void Dispose() => verifier?.Dispose();
+    public void Dispose()
+    {
+        verifier?.Dispose();
+        http?.Dispose();
+    }
 
     private CurriculumCatalog LoadCatalog()
     {

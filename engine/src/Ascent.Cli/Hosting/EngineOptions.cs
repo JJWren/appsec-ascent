@@ -47,4 +47,16 @@ public sealed record EngineOptions
     /// the composition root; there is deliberately no configuration file or command-line option for it (P8).
     /// </summary>
     public string? TrustedKeyPem { get; init; }
+
+    /// <summary>The Local Stage; null means the production adapter.</summary>
+    public Ascent.Labs.IOrchestrator? Orchestrator { get; init; }
+
+    /// <summary>The AI reviewer's transport; null means the OpenAI-compatible client over the Engine's HTTP client.</summary>
+    public Ascent.Deliverables.IReviewerClient? ReviewerClient { get; init; }
+
+    /// <summary>Whether Windows-only Labs can run; null means the real operating system.</summary>
+    public bool? IsWindows { get; init; }
+
+    /// <summary>Opens a URL in the browser (BUG-01); null means the system's default browser.</summary>
+    public Action<Uri>? OpenUrl { get; init; }
 }

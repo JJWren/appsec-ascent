@@ -228,7 +228,7 @@ public sealed class LearnerCommandTests
         output.ShouldContain("Rank: Security Champion");
         output.ShouldContain("XP: 35 (next: AppSec Engineer at 77)");
         output.ShouldContain("This week (2026-W40): 1/5 Stand-up days. Week streak: 0.");
-        output.ShouldContain("Badges: FirstBlood");
+        output.ShouldContain("Badges: First Blood");
         output.ShouldContain("D4          33%");
         output.ShouldContain("WARN: Rematch due: D4. Your Stand-ups favour these Domains until you pass.");
         output.ShouldContain("Season 2: dd-1");

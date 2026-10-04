@@ -5,6 +5,9 @@
     <Project Path="engine/src/Ascent.Cli/Ascent.Cli.csproj" />
     <Project Path="engine/src/Ascent.Content/Ascent.Content.csproj" />
     <Project Path="engine/src/Ascent.Core/Ascent.Core.csproj" />
+    <Project Path="engine/src/Ascent.Deliverables/Ascent.Deliverables.csproj" />
+    <Project Path="engine/src/Ascent.Integrations/Ascent.Integrations.csproj" />
+    <Project Path="engine/src/Ascent.Labs/Ascent.Labs.csproj" />
     <Project Path="engine/src/Ascent.Sealing/Ascent.Sealing.csproj" />
     <Project Path="engine/src/Ascent.Storage/Ascent.Storage.csproj" />
   </Folder>

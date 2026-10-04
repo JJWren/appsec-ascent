@@ -40,6 +40,48 @@ public static class EngineApp
                 .WithDescription("Take a full Simulation exam.");
             config.AddCommand<StatusCommand>("status")
                 .WithDescription("Show your Rank, XP, badges and weekly goal.");
+            config.AddBranch("lab", branch =>
+            {
+                branch.SetDescription("Work on a Lab: Red, then Blue, then Explain.");
+                branch.AddCommand<LabUpCommand>("up")
+                    .WithDescription("Start a Lab and plant a fresh Flag (add --cloud for its Cloud Stage).");
+                branch.AddCommand<LabDownCommand>("down")
+                    .WithDescription("Stop a Lab's Local Stage.");
+                branch.AddCommand<LabResetCommand>("reset")
+                    .WithDescription("Put a Lab's original module files back.");
+            });
+            config.AddCommand<FlagCommand>("flag")
+                .WithDescription("Submit the Flag you captured.");
+            config.AddCommand<VerifyCommand>("verify")
+                .WithDescription("Run a Lab's security tests against your fix.");
+            config.AddCommand<TeardownCommand>("teardown")
+                .WithDescription("Delete every Cloud Stage deployment and check nothing is left.");
+            config.AddBranch("guardrails", branch =>
+            {
+                branch.SetDescription("Cost guardrails for Cloud Stages.");
+                branch.AddCommand<GuardrailsCheckCommand>("check")
+                    .WithDescription("Check the budget alerts and the Policy allow-list.");
+                branch.AddCommand<GuardrailsApplyCommand>("apply")
+                    .WithDescription("Deploy the budget alerts and the Policy allow-list.");
+            });
+            config.AddCommand<DeliverCommand>("deliver")
+                .WithDescription("Start, check and submit a Deliverable or a drill.");
+            config.AddCommand<ReviewCommand>("review")
+                .WithDescription("Get optional feedback on a Deliverable from your AI model.");
+            config.AddBranch("release", branch =>
+            {
+                branch.SetDescription("Move between Releases of the Throughline System.");
+                branch.AddCommand<ReleaseNextCommand>("next")
+                    .WithDescription("Archive your Domain work and switch to the next Release.");
+            });
+            config.AddCommand<DoctorCommand>("doctor")
+                .WithDescription("Check which Stages your environment supports.");
+            config.AddCommand<BugCommand>("bug")
+                .WithDescription("Report a Content Bug about an item.");
+            config.AddCommand<SyncCommand>("sync")
+                .WithDescription("Earn XP for your confirmed Content Bugs.");
+            config.AddCommand<PortfolioCommand>("portfolio")
+                .WithDescription("Write PORTFOLIO.md for your fork.");
             config.AddBranch("progress", branch =>
             {
                 branch.SetDescription("Back up or restore your progress.");
