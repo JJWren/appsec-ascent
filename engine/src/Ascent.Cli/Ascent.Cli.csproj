@@ -18,6 +18,7 @@
     <ProjectReference Include="..\Ascent.Content\Ascent.Content.csproj" />
     <ProjectReference Include="..\Ascent.Core\Ascent.Core.csproj" />
     <ProjectReference Include="..\Ascent.Storage\Ascent.Storage.csproj" />
+    <ProjectReference Include="..\Ascent.Sealing\Ascent.Sealing.csproj" />
   </ItemGroup>
 
   <ItemGroup>

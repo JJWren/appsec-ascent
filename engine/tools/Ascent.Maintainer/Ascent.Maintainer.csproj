@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>ascent-maint</AssemblyName>
+    <RootNamespace>Ascent.Maintainer</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Description>Maintainer-only tool: seal, sign and verify Sealed Bundles. It is never shipped to Learners (SEC-U2-09).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console.Cli" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Ascent.Sealing\Ascent.Sealing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ascent.Maintainer.Tests" />
+  </ItemGroup>
+
+</Project>

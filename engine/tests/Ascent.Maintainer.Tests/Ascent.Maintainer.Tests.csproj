@@ -15,9 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Ascent.Core\Ascent.Core.csproj" />
-    <ProjectReference Include="..\..\src\Ascent.Storage\Ascent.Storage.csproj" />
-    <ProjectReference Include="..\..\src\Ascent.Sealing\Ascent.Sealing.csproj" />
+    <ProjectReference Include="..\..\tools\Ascent.Maintainer\Ascent.Maintainer.csproj" />
   </ItemGroup>
 
   <ItemGroup>

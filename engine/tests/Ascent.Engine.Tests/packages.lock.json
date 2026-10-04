@@ -362,6 +362,12 @@
           "Ascent.Content": "[1.0.0, )"
         }
       },
+      "ascent.sealing": {
+        "type": "Project",
+        "dependencies": {
+          "Ascent.Core": "[1.0.0, )"
+        }
+      },
       "ascent.storage": {
         "type": "Project",
         "dependencies": {

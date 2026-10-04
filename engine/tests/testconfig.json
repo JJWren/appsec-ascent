@@ -1,7 +1,7 @@
 {
   "platformOptions": {
     "Coverlet": {
-      "include": "[Ascent.*]*,[ascent]*,[ascent-maint]*",
+      "include": "[Ascent.*]*,[ascent*]*",
       "exclude": "[*.Tests]*",
       "excludeByAttribute": "ExcludeFromCodeCoverage,ExcludeFromCodeCoverageAttribute,GeneratedCodeAttribute,CompilerGeneratedAttribute",
       "excludeAssembliesWithoutSources": "None",

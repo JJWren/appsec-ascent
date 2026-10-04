@@ -35,6 +35,17 @@ internal sealed class TestEngine : IDisposable
         return new TestEngine(root, plain);
     }
 
+    /// <summary>Copies the real JSON schemas, so content in this repository is classified and validated like the real one.</summary>
+    public TestEngine WithSchemas()
+    {
+        foreach (var file in Directory.EnumerateFiles(Path.Join(RealRoot, "schemas"), "*.schema.json"))
+        {
+            WriteFile("schemas/" + Path.GetFileName(file), File.ReadAllText(file));
+        }
+
+        return this;
+    }
+
     public string WriteFile(string relativePath, string content)
     {
         var full = Path.Join(Root, relativePath);

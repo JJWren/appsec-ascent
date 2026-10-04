@@ -1,0 +1,5 @@
+{
+  "formatVersion": 1,
+  "shieldKey": "roRid+dhCL+FezYn84YNowRnQOtocFGXGeQAKfb+Xt0=",
+  "note": "Public by design (ADR 0005): a spoiler shield against accidental exposure, not DRM."
+}

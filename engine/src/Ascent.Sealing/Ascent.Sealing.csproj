@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Ascent.Sealing</RootNamespace>
+    <Description>AppSec Ascent sealing runtime: verify-then-decrypt Sealed Bundles, key release, unsealed scopes and Flags.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ascent.Core\Ascent.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The maintainer's public key: the Engine's only trust anchor for Sealed Bundles (P8). -->
+    <EmbeddedResource Include="Keys\*.pem" LogicalName="keys/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ascent.Engine.Tests" />
+    <InternalsVisibleTo Include="Ascent.Cli.Tests" />
+    <InternalsVisibleTo Include="Ascent.Maintainer.Tests" />
+  </ItemGroup>
+
+</Project>

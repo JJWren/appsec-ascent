@@ -55,7 +55,7 @@ jobs:
             "-reports:TestResults/*.cobertura*.xml" \
             "-targetdir:TestResults/coverage" \
             "-reporttypes:MarkdownSummaryGithub" \
-            "-assemblyfilters:+Ascent.*;+ascent;+ascent-maint;-*.Tests" \
+            "-assemblyfilters:+Ascent.*;+ascent*;-*.Tests" \
             "-classfilters:-Ascent.Cli.Commands.*;-Ascent.Maintainer.Commands.*;-Program" \
             "--minimumCoverageThresholds:lineCoverage=${COVERAGE_MIN_LINE}" || status=$?
           cat TestResults/coverage/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"

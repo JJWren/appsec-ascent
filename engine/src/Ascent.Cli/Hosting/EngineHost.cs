@@ -76,16 +76,27 @@ public sealed class EngineHost : IDisposable
     /// <summary>Where command output goes (machine-readable JSON included).</summary>
     public TextWriter Out => options.Output ?? System.Console.Out;
 
-    /// <summary>A Spectre console that honours the current output mode, for commands that draw their own tables.</summary>
-    public IAnsiConsole OutputConsole() => Renderer.IsPlain
-        ? AnsiConsole.Create(new AnsiConsoleSettings
+    /// <summary>
+    /// A Spectre console that honours the current output mode, for commands that draw their own tables. In plain mode
+    /// lines are never wrapped, so logs and screen readers get each finding on one line.
+    /// </summary>
+    public IAnsiConsole OutputConsole()
+    {
+        if (!Renderer.IsPlain)
+        {
+            return SpectreConsole();
+        }
+
+        var plain = AnsiConsole.Create(new AnsiConsoleSettings
         {
             Out = new AnsiConsoleOutput(Out),
             Ansi = AnsiSupport.No,
             ColorSystem = ColorSystemSupport.NoColors,
             Interactive = InteractionSupport.No,
-        })
-        : SpectreConsole();
+        });
+        plain.Profile.Width = short.MaxValue;
+        return plain;
+    }
 
     /// <summary>Called before a command runs: applies its global options.</summary>
     public void BeginCommand(string name, EngineSettings? commandSettings)
