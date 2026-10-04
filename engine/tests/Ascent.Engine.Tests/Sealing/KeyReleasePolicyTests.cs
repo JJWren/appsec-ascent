@@ -1,6 +1,6 @@
 using Ascent.Core.Domain;
 using Ascent.Sealing.Bundles;
-using Ascent.Sealing.Release;
+using Ascent.Sealing.KeyRelease;
 
 namespace Ascent.Engine.Tests.Sealing;
 

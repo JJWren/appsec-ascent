@@ -5,7 +5,7 @@ using Ascent.Core.Platform;
 using Ascent.Core.Progress;
 using Ascent.Sealing.Bundles;
 using Ascent.Sealing.Crypto;
-using Ascent.Sealing.Release;
+using Ascent.Sealing.KeyRelease;
 
 namespace Ascent.Sealing;
 

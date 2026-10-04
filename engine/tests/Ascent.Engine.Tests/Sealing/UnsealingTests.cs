@@ -7,7 +7,7 @@ using Ascent.Core.Errors;
 using Ascent.Core.Platform;
 using Ascent.Engine.Tests.TestSupport;
 using Ascent.Sealing;
-using Ascent.Sealing.Release;
+using Ascent.Sealing.KeyRelease;
 using Ascent.Sealing.Unsealing;
 using Microsoft.Extensions.Time.Testing;
 

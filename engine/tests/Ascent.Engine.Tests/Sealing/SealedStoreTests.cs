@@ -5,7 +5,7 @@ using Ascent.Core.Progress;
 using Ascent.Engine.Tests.TestSupport;
 using Ascent.Sealing;
 using Ascent.Sealing.Bundles;
-using Ascent.Sealing.Release;
+using Ascent.Sealing.KeyRelease;
 using Microsoft.Extensions.Time.Testing;
 
 namespace Ascent.Engine.Tests.Sealing;
