@@ -26,10 +26,11 @@ public sealed class ExecutableResolverTests
         PlantTool(temp.Combine("relative", "bin"), "git");
 
         // ".", an empty entry and relative entries all depend on the current directory, so the resolver skips them.
-        // (The current directory is never consulted, so this holds wherever the test runs.)
-        var resolver = new ExecutableResolver(
-            Environment(path: string.Join(Path.PathSeparator, ".", string.Empty, "relative/bin", Path.GetRelativePath(Directory.GetCurrentDirectory(), temp.Path))),
-            null);
+        // (The current directory is never consulted, so this holds wherever the test runs.) A relative path to the
+        // planted tool is added only when one exists: across drives on Windows, GetRelativePath returns an absolute path.
+        var relativeToTemp = Path.GetRelativePath(Directory.GetCurrentDirectory(), temp.Path);
+        string[] entries = Path.IsPathRooted(relativeToTemp) ? [".", string.Empty, "relative/bin"] : [".", string.Empty, "relative/bin", relativeToTemp];
+        var resolver = new ExecutableResolver(Environment(path: string.Join(Path.PathSeparator, entries)), null);
 
         resolver.Resolve(ExternalTool.Git).ShouldBeNull();
     }

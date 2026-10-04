@@ -60,12 +60,7 @@ public sealed class RenderingTests
     public void Untrusted_text_cannot_inject_markup_or_escape_sequences()
     {
         using var writer = new StringWriter();
-        var console = AnsiConsole.Create(new AnsiConsoleSettings
-        {
-            Out = new AnsiConsoleOutput(writer),
-            Ansi = AnsiSupport.No,
-            ColorSystem = ColorSystemSupport.NoColors,
-        });
+        var console = Ascent.Cli.Hosting.EngineHost.PlainConsole(writer);
         var renderer = new RichRenderer(console);
         const string hostile = "[red]not markup[/] \u001b]8;;https://evil.example\u001b\\link\u001b]8;;\u001b\\";
 

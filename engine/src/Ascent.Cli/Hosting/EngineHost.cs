@@ -87,15 +87,28 @@ public sealed class EngineHost : IDisposable
             return SpectreConsole();
         }
 
-        var plain = AnsiConsole.Create(new AnsiConsoleSettings
+        var plain = PlainConsole(Out);
+        plain.Profile.Width = short.MaxValue;
+        return plain;
+    }
+
+    /// <summary>
+    /// A Spectre console with no ANSI at all. Spectre's CI enrichers (GitHub Actions and others) would otherwise switch
+    /// ANSI back on, so they are disabled and the capability is forced off.
+    /// </summary>
+    internal static IAnsiConsole PlainConsole(TextWriter writer)
+    {
+        var console = AnsiConsole.Create(new AnsiConsoleSettings
         {
-            Out = new AnsiConsoleOutput(Out),
+            Out = new AnsiConsoleOutput(writer),
             Ansi = AnsiSupport.No,
             ColorSystem = ColorSystemSupport.NoColors,
             Interactive = InteractionSupport.No,
+            Enrichment = new ProfileEnrichment { UseDefaultEnrichers = false },
         });
-        plain.Profile.Width = short.MaxValue;
-        return plain;
+        console.Profile.Capabilities.Ansi = false;
+        console.Profile.Capabilities.Links = false;
+        return console;
     }
 
     /// <summary>Called before a command runs: applies its global options.</summary>
@@ -188,13 +201,5 @@ public sealed class EngineHost : IDisposable
             : new SpectrePrompter(SpectreConsole());
 
     /// <summary>The Spectre console for rich output (tests get one over their writer, without ANSI).</summary>
-    internal IAnsiConsole SpectreConsole() => console ??= options.Output is null
-        ? AnsiConsole.Console
-        : AnsiConsole.Create(new AnsiConsoleSettings
-        {
-            Out = new AnsiConsoleOutput(options.Output),
-            Ansi = AnsiSupport.No,
-            ColorSystem = ColorSystemSupport.NoColors,
-            Interactive = InteractionSupport.No,
-        });
+    internal IAnsiConsole SpectreConsole() => console ??= options.Output is null ? AnsiConsole.Console : PlainConsole(options.Output);
 }
