@@ -1,31 +1,39 @@
-using Ascent.Cli.Commands;
-using Spectre.Console.Cli;
+using System.Runtime.InteropServices;
+using Ascent.Cli.Hosting;
+using Ascent.Core.Errors;
 
-var app = new CommandApp();
-app.Configure(config =>
+using var host = new EngineHost();
+using var cancellation = new CancellationTokenSource();
+
+// The first Ctrl+C asks the running command to stop and clean up (unsealed scopes, child processes);
+// a second one ends the process immediately.
+Console.CancelKeyPress += (_, e) =>
 {
-    config.SetApplicationName("ascent");
-
-    config.AddCommand<LintCommand>("lint")
-        .WithDescription("Check curriculum content against the framework's rules.");
-
-    config.AddCommand<CoverageCommand>("coverage")
-        .WithDescription("Report coverage against the exam outline (counts only).");
-
-    config.AddBranch("exceptions", branch =>
+    if (!cancellation.IsCancellationRequested)
     {
-        branch.SetDescription("Work with the security exception register.");
-        branch.AddCommand<ExceptionsCheckCommand>("check")
-            .WithDescription("Fail on expired, invalid or over-long risk acceptances.");
-        branch.AddCommand<ExceptionsEmitCommand>("emit")
-            .WithDescription("Generate scanner suppression files from the register.");
+        e.Cancel = true;
+        cancellation.Cancel();
+    }
+};
+
+PosixSignalRegistration? terminate = null;
+try
+{
+    terminate = PosixSignalRegistration.Create(PosixSignal.SIGTERM, context =>
+    {
+        context.Cancel = true;
+        cancellation.Cancel();
     });
+}
+catch (PlatformNotSupportedException)
+{
+    // SIGTERM isn't available here; Ctrl+C handling still applies.
+}
 
-    config.AddCommand<VerifyBundlesCommand>("verify-bundles")
-        .WithDescription("Check Sealed Bundle metadata (signature verification ships with the sealing module).");
-});
+using (terminate)
+{
+    var exitCode = await EngineApp.Create(host).RunAsync(args, cancellation.Token);
 
-var exitCode = await app.RunAsync(args);
-
-// Spectre returns a negative code for usage errors; the Engine uses 2 (REL-U1-01).
-return exitCode < 0 ? 2 : exitCode;
+    // Spectre reports some usage errors as negative codes; the Engine always uses 2 (UX-U2-02).
+    return exitCode < 0 ? ExitCodes.Usage : exitCode;
+}

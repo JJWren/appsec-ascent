@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Ascent.Assessment</RootNamespace>
+    <Description>AppSec Ascent assessment: questions, FSRS Stand-ups, the Diagnostic, Boss Fights and Simulations.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fsrs.Sharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ascent.Sealing\Ascent.Sealing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ascent.Engine.Tests" />
+    <InternalsVisibleTo Include="Ascent.Cli.Tests" />
+  </ItemGroup>
+
+</Project>

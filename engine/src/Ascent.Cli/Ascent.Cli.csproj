@@ -16,6 +16,17 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ascent.Content\Ascent.Content.csproj" />
+    <ProjectReference Include="..\Ascent.Core\Ascent.Core.csproj" />
+    <ProjectReference Include="..\Ascent.Storage\Ascent.Storage.csproj" />
+    <ProjectReference Include="..\Ascent.Sealing\Ascent.Sealing.csproj" />
+    <ProjectReference Include="..\Ascent.Assessment\Ascent.Assessment.csproj" />
+    <ProjectReference Include="..\Ascent.Labs\Ascent.Labs.csproj" />
+    <ProjectReference Include="..\Ascent.Deliverables\Ascent.Deliverables.csproj" />
+    <ProjectReference Include="..\Ascent.Integrations\Ascent.Integrations.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ascent.Cli.Tests" />
   </ItemGroup>
 
 </Project>

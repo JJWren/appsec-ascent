@@ -6,7 +6,7 @@ namespace Ascent.Content.Rules;
 /// <summary>REPO rules: repository hygiene and supply-chain safety of workflows.</summary>
 public static partial class RepoRules
 {
-    private static readonly string[] RequiredIgnores = ["aidlc-docs/", ".ascent/", "journal/"];
+    private static readonly string[] RequiredIgnores = ["aidlc-docs/", ".ascent/", "journal/", "my-work/"];
 
     /// <summary>All REPO rules.</summary>
     public static IReadOnlyList<IContentRule> All { get; } =

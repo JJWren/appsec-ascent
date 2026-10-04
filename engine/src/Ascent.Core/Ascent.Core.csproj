@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Ascent.Core</RootNamespace>
+    <Description>AppSec Ascent engine core: domain rules, storage ports and platform seams (base class library only).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ascent.Content\Ascent.Content.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ascent.Engine.Tests" />
+    <InternalsVisibleTo Include="Ascent.Cli.Tests" />
+  </ItemGroup>
+
+</Project>

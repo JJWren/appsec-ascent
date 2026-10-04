@@ -1,0 +1,11 @@
+{
+  "platformOptions": {
+    "Coverlet": {
+      "include": "[Ascent.*]*,[ascent*]*",
+      "exclude": "[*.Tests]*",
+      "excludeByAttribute": "ExcludeFromCodeCoverage,ExcludeFromCodeCoverageAttribute,GeneratedCodeAttribute,CompilerGeneratedAttribute",
+      "excludeAssembliesWithoutSources": "None",
+      "format": "cobertura"
+    }
+  }
+}

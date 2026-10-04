@@ -6,7 +6,7 @@ public static class RepoLayout
     /// <summary>Directories never scanned (build output, VCS data, private records, learner state).</summary>
     public static readonly IReadOnlySet<string> ExcludedDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-        ".git", "bin", "obj", "aidlc-docs", "node_modules", ".ascent", "journal", "TestResults", ".vs", ".idea", "artifacts",
+        ".git", "bin", "obj", "aidlc-docs", "node_modules", ".ascent", "journal", "my-work", "TestResults", ".vs", ".idea", "artifacts",
     };
 
     /// <summary>Schema file used for each kind of document.</summary>

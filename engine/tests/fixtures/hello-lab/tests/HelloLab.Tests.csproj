@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- Released Lab tests build outside the repository's central package management, so they pin their own versions. -->
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" Version="4.0.1" />
+  </ItemGroup>
+
+  <!-- The Engine passes ThroughlineRoot: the Learner's Release in my-work/throughline/. -->
+  <ItemGroup>
+    <Compile Include="$(ThroughlineRoot)/hello/**/*.cs" LinkBase="Throughline" />
+  </ItemGroup>
+
+</Project>

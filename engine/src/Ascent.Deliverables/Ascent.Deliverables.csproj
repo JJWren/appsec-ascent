@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Ascent.Deliverables</RootNamespace>
+    <Description>AppSec Ascent Deliverables: scaffolding, validation, self-scoring, reference answers and the optional AI reviewer.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ascent.Sealing\Ascent.Sealing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ascent.Engine.Tests" />
+    <InternalsVisibleTo Include="Ascent.Cli.Tests" />
+  </ItemGroup>
+
+</Project>

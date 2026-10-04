@@ -1,0 +1,62 @@
+using Ascent.Core.Interaction;
+using Ascent.Core.Platform;
+
+namespace Ascent.Cli.Hosting;
+
+/// <summary>
+/// Everything the composition root can swap. Production uses the defaults; tests pass fakes (fixed clocks, seeded
+/// randomness, recorded processes, captured output and scripted answers).
+/// </summary>
+public sealed record EngineOptions
+{
+    /// <summary>The repository root; null means the nearest folder containing <c>AppSecAscent.slnx</c>.</summary>
+    public string? RepoRoot { get; init; }
+
+    /// <summary>The clock.</summary>
+    public TimeProvider Time { get; init; } = TimeProvider.System;
+
+    /// <summary>The randomness source.</summary>
+    public IRandomSource Random { get; init; } = CryptoRandomSource.Instance;
+
+    /// <summary>Owner-only file creation; null means the adapter for the running OS.</summary>
+    public IOwnerOnlyFiles? Files { get; init; }
+
+    /// <summary>The external-tool runner; null means the real <see cref="ProcessRunner"/>.</summary>
+    public IProcessRunner? Processes { get; init; }
+
+    /// <summary>The HTTP transport; null means a hardened <see cref="System.Net.Http.SocketsHttpHandler"/>.</summary>
+    public HttpMessageHandler? HttpTransport { get; init; }
+
+    /// <summary>Where output goes; null means the console.</summary>
+    public TextWriter? Output { get; init; }
+
+    /// <summary>Where plain-mode answers come from; null means standard input.</summary>
+    public TextReader? Input { get; init; }
+
+    /// <summary>The prompter; null means one matching the output mode.</summary>
+    public IPrompter? Prompter { get; init; }
+
+    /// <summary>Environment variable lookup; null means the real environment.</summary>
+    public Func<string, string?>? Environment { get; init; }
+
+    /// <summary>Whether output is redirected; null means ask the console.</summary>
+    public bool? OutputRedirected { get; init; }
+
+    /// <summary>
+    /// The trusted maintainer public key (PEM). Null means the key embedded in the Engine. Only tests set this, through
+    /// the composition root; there is deliberately no configuration file or command-line option for it (P8).
+    /// </summary>
+    public string? TrustedKeyPem { get; init; }
+
+    /// <summary>The Local Stage; null means the production adapter.</summary>
+    public Ascent.Labs.IOrchestrator? Orchestrator { get; init; }
+
+    /// <summary>The AI reviewer's transport; null means the OpenAI-compatible client over the Engine's HTTP client.</summary>
+    public Ascent.Deliverables.IReviewerClient? ReviewerClient { get; init; }
+
+    /// <summary>Whether Windows-only Labs can run; null means the real operating system.</summary>
+    public bool? IsWindows { get; init; }
+
+    /// <summary>Opens a URL in the browser (BUG-01); null means the system's default browser.</summary>
+    public Action<Uri>? OpenUrl { get; init; }
+}
