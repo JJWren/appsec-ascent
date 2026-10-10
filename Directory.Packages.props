@@ -11,7 +11,7 @@
     <PackageVersion Include="Markdig" Version="1.4.0" />                         <!-- BSD-2-Clause -->
     <PackageVersion Include="LateApexEarlySpeed.Json.Schema" Version="4.2.0" />  <!-- BSD-3-Clause -->
     <!-- Tests (Microsoft.Testing.Platform runner, opted in via global.json) -->
-    <PackageVersion Include="xunit.v3" Version="4.0.1" />                        <!-- Apache-2.0 -->
+    <PackageVersion Include="xunit.v3" Version="4.0.2" />                        <!-- Apache-2.0 -->
     <PackageVersion Include="Shouldly" Version="4.3.0" />                        <!-- BSD-3-Clause -->
   </ItemGroup>
 </Project>
